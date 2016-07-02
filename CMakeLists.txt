@@ -16,6 +16,9 @@ include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 
 set(kbddisplay_SRCS kbddisplay.cpp
 					main.cpp
+					keyitemmodel.cpp
+					qgraphicskeyitem.cpp
+					stylechooser.cpp
 					
 					)
 

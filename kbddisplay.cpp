@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QGraphicsRectItem>
 #include <QXmlStreamReader>
+#include <QString>
 
 /*!
  * @brief Constructor of the main window. 
@@ -37,6 +38,12 @@ KbdDisplay::KbdDisplay()
     //paintStuff();
     loadKbd("/home/arek/projects/kbddisplay/freestyle2.xml");
 	
+	// set up table
+	model = new KeyItemModel();
+	model->setKeys(keys);
+	ui->tableView->setModel(model);
+	connect(model, SIGNAL(keyChanged(KeyItem*)), this, SLOT(keyChanged(KeyItem*)));
+	
 	// Mainwindows size. For some reason has to be at the end of the constructor.
 	//setGeometry(settings.value("MainWindowGeometry", QRect(800,0,1200,600)).toRect());
 }
@@ -49,42 +56,18 @@ KbdDisplay::~KbdDisplay()
 	//settings.setValue("MainWindowGeometry", geometry());
 }
 
-void KbdDisplay::paintStuff()
-{
-	qDebug() << "Scene = " << scene;
-	QGraphicsRectItem * lastRect = scene->addRect(0.0, 0.0, 40.0, 40.0);
-	QGraphicsRectItem * newRect;
-	for (int i = 0; i < 7; i++)
-	{
-		newRect = scene->addRect(0.0, 0.0, 40.0, 40.0);
-		newRect->setPos(lastRect->pos().x() + 45.0, lastRect->pos().y() + 4.0);
-		lastRect = newRect;
-		qDebug() << "Rect->x: " << lastRect->x() << "  Pointer: " << lastRect;
-	}
-	
-	QGraphicsItemGroup *row = new QGraphicsItemGroup();
-	scene->addItem(row);
-	
-	lastRect = scene->addRect(0.0, 0.0, 40.0, 40.0);
-	row->addToGroup(lastRect);
-	for (int i = 0; i < 8; i++)
-	{
-		newRect = scene->addRect(0.0, 0.0, 40.0, 40.0);
-		newRect->setPos(lastRect->pos().x() + 45.0, lastRect->pos().y() + 4.0);
-		row->addToGroup(newRect);
-		lastRect = newRect;
-		qDebug() << "Rect->x: " << lastRect->x() << "  Pointer: " << lastRect;
-	}
-	row->setRotation(20.0);
-	
-}
-
 void KbdDisplay::loadKbd(QString filename)
 {
 	
 	QFile f(filename);
 	if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
 		qDebug() << "could not open configuration File for reading: " << filename;
+		return;
+	}
+	keys.clear();
+	groups.clear();
+	scene->clear();
 	
     QXmlStreamReader reader(&f);
 	
@@ -135,6 +118,8 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 			if (reader.isEndElement())
 				return resultItem;
 			QGraphicsItemGroup * group = new QGraphicsItemGroup();
+			group->setFiltersChildEvents(true);
+			qDebug() << id << " filters: " << group->filtersChildEvents();
 			scene->addItem(group);
 			//if (parent != nullptr)
 			//	parent->addToGroup(group);
@@ -148,14 +133,34 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		else if (reader.name() == "key")
 		{
 			//TODO nicer looking keys
-			double_t w = keywidth, h = keyheight;
-			if (attr.hasAttribute("w"))
-				w = attr.value("w").toDouble();
-			if (attr.hasAttribute("h"))
-				h = attr.value("h").toDouble();
-			item = scene->addRect(0.0, 0.0, w, h);
+			if(attr.hasAttribute("polygon"))
+			{
+				QPolygonF polygon;
+				QString points = attr.value("polygon").toString();
+				foreach (QString point, points.split(' ', QString::SkipEmptyParts))
+				{
+					QStringList plist = point.split(',', QString::SkipEmptyParts);
+					if (plist.size() != 2)
+					{
+						qDebug() << "Invalid point in " << points;
+						continue;
+					}
+					polygon.append(QPointF(plist[0].toDouble(), plist[1].toDouble()));
+				}
+				item = new QGraphicsKeyItem(polygon);
+			}
+			else
+			{
+				double_t w = keywidth, h = keyheight;
+				if (attr.hasAttribute("w"))
+					w = attr.value("w").toDouble();
+				if (attr.hasAttribute("h"))
+					h = attr.value("h").toDouble();
+				item = new QGraphicsKeyItem(QRect(0.0, 0.0, w, h));
+			}
+			scene->addItem(item);
 			keys.insert(id, item);
-			addLabel(id, item);
+			//addLabel(id, item);
 		}
 		else 
 			continue;
@@ -175,24 +180,27 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 				corner = "ne";
 			else
 				corner = attr.value("corner").toString();
+			QRectF bRect = lastItem->mapRectToParent(lastItem->boundingRect() | lastItem->childrenBoundingRect());
 			
 			if (corner == "ne")
-				p = lastItem->mapRectToParent(lastItem->boundingRect()).topRight();
+				p = bRect.topRight();
 			else if (corner == "sw")
-				p = lastItem->mapRectToParent(lastItem->boundingRect()).bottomLeft();
+				p = bRect.bottomLeft();
 			else if (corner == "se")
-				p = lastItem->mapRectToParent(lastItem->boundingRect()).bottomRight();
+				p = bRect.bottomRight();
 			else if (corner == "nw")
-				p = lastItem->mapRectToParent(lastItem->boundingRect()).topLeft();
+				p = bRect.topLeft();
 			else
 				qDebug() << "Warning: invalid corner value \"" << corner << "\""; 
 		}
 		
 		
 		item->moveBy(groupX + x + p.x() + 0.5, groupY + y + p.y() + 0.5);
+		//item->moveBy(groupX + x + p.x() + 1, groupY + y + p.y() + 1);
+		//item->moveBy(groupX + x + p.x() , groupY + y + p.y());
 		lastItem = item;
-		qDebug() << "boundingRect of " << id << " is " << item->boundingRect()
-				 << ", to Parent: " << lastItem->mapRectToParent(lastItem->boundingRect());
+		//qDebug() << "boundingRect of " << id << " is " << item->boundingRect()
+		//		 << ", to Parent: " << lastItem->mapRectToParent(lastItem->boundingRect());
 		
 	}
 
@@ -205,17 +213,6 @@ QGraphicsItem* KbdDisplay::getItem(QString value)
 	if (it != keys.end())
 		return it.value();
 	return groups[value];
-}
-
-void KbdDisplay::addLabel(QString id, QGraphicsItem* item)
-{
-	QFont font;
-	font.setPointSizeF(2.0);
-	QGraphicsTextItem * label = scene->addText(id, font);
-	label->setDefaultTextColor(QColor(Qt::black));
-	label->setTextWidth(item->boundingRect().width());
-	label->setParentItem(item);
-	
 }
 
 void KbdDisplay::printItemTree(QGraphicsItem* root, int level)
@@ -243,12 +240,6 @@ void KbdDisplay::printItemTree(QGraphicsItem* root, int level)
 	QList<QGraphicsItem*> children = root->childItems();
 	foreach(QGraphicsItem* item, children)
 		printItemTree(item, level + 1);
-	
-	
-	
-	
-	
-	
 }
 
 
@@ -256,6 +247,22 @@ void KbdDisplay::printItemTree(QGraphicsItem* root, int level)
 void KbdDisplay::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
+}
+
+void KbdDisplay::keyChanged(KeyItem* item)
+{
+	foreach(QGraphicsItem* it, keys.values(item->keyId))
+	{
+		it->update();
+		continue;
+		/*QGraphicsTextItem *t = (QGraphicsTextItem*)it->childItems().at(0);
+		t->setPlainText(item->labelTop);
+		QGraphicsRectItem *r = (QGraphicsRectItem*)it;
+		QBrush brush;
+		brush.setColor(model->getColor(item->styleTop, Qt::BackgroundRole));
+		r->setBrush(brush);
+		*/
+	}
 }
 
 
