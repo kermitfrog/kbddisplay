@@ -38,13 +38,14 @@ public:
     QGraphicsKeyItem(const QRectF& polygon, QGraphicsItem* parent = Q_NULLPTR);
     QGraphicsKeyItem(qreal x, qreal y, qreal width, qreal height, QGraphicsItem* parent = Q_NULLPTR);
     virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
-	void setKey(KeyItem * key) {this->key = key;};
+	void setKey(KeyItem * key);
 	virtual int type() const {return Type; };
+	int getPartIndex(QPointF pos);
+	void setStyle(QString style, int index = 0);
+	void updateContent();
+	KeyItem *getKey() {return key;};
 	
 protected:
-    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* event);
-    virtual void keyPressEvent(QKeyEvent* event);
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
 	void commonInit();
 	void paintText(QString text, QPolygonF polygon, int index = 0);
 	QPolygonF upperPolygon, lowerPolygon;

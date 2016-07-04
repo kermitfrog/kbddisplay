@@ -23,12 +23,18 @@
 #include <QAbstractTableModel>
 #include <QModelIndex>
 #include <QBrush>
+#include <QList>
 #include "qgraphicskeyitem.h"
+class QGraphicsKeyItem;
 
 class KeyItem {
 public:
 	KeyItem(QString id) : keyId(id) {};
 	QString keyId, labelTop, labelBottom, style[2];
+	QList<QGraphicsKeyItem*> graphicItems;
+	void setStyle(QString style, int index);
+	void updateItems();
+	
 };
 	
 class KeyItemModel : public QAbstractTableModel
@@ -40,11 +46,13 @@ public:
     ~KeyItemModel();
 	
 	static QMap< QString, QPair<QColor, QColor> > colors;
+	QMap< int, KeyItem* > codeToKeyItemMap;
 	QVariant getBrushV(QString name, int role) const;
 	static QColor getColor(QString name, int role);
 	
 signals:
 	void keyChanged(KeyItem*);
+	void stylesChanged();
 	
 protected:
 	
@@ -57,7 +65,7 @@ protected:
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     void loadColors();
 	void addColor(QString name, QColor fg, QColor bg);
-	
+	QMap<QString, int> loadCodeToIdMap();
 	
 	QList<KeyItem*> items;
 	

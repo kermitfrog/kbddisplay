@@ -19,10 +19,11 @@ set(kbddisplay_SRCS kbddisplay.cpp
 					keyitemmodel.cpp
 					qgraphicskeyitem.cpp
 					stylechooser.cpp
-					
+					keyboardview.cpp
+					keydialog.cpp
 					)
 
-set(kbddisplay_UIS kbddisplay.ui)
+set(kbddisplay_UIS kbddisplay.ui keydialog.ui)
 qt5_wrap_ui(kbddisplay_UIS ${kbddisplay_UIS})
 #qt5_wrap_cpp(kbddisplay_MOCS ${kbddisplay_SRCS})
 add_executable(kbddisplay ${kbddisplay_SRCS} ${kbddisplay_UIS})# ${kbddisplay_MOCS})

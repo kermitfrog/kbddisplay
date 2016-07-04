@@ -71,17 +71,14 @@ void QGraphicsKeyItem::commonInit()
 			}
 		}
 	}
-	
-	
-	// TODO: set real brushes
-	upperBrush = QBrush(Qt::gray);
-	lowerBrush = QBrush(Qt::darkGreen);
 }
 
-
-//QGraphicsKeyItem::~QGrapicsKeyItem()// : ~QGraphicsPolygonItem()
-//{
-//}
+void QGraphicsKeyItem::setKey(KeyItem* key)
+{
+ this->key = key; 
+ key->graphicItems.append(this);
+ updateContent();
+}
 
 QGraphicsKeyItem::QGraphicsKeyItem(const QRectF& rect, QGraphicsItem* parent) 
 {
@@ -100,12 +97,10 @@ QGraphicsKeyItem::QGraphicsKeyItem(const QPolygonF& polygon, QGraphicsItem* pare
 
 void QGraphicsKeyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-	if (key == nullptr)
+	if (key == nullptr) 
 		return;
 	painter->setPen(QPen(Qt::NoPen));
 	
-	upperBrush.setColor(KeyItemModel::getColor(key->style[0], Qt::BackgroundRole));
-	lowerBrush.setColor(KeyItemModel::getColor(key->style[1], Qt::BackgroundRole));
 	
 	painter->setBrush(upperBrush);
 	
@@ -114,22 +109,15 @@ void QGraphicsKeyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
 		painter->drawPolygon(upperPolygon);
 		painter->setBrush(lowerBrush);
 		painter->drawPolygon(lowerPolygon);
-		paintText(key->labelTop, upperPolygon);
-		paintText(key->labelBottom, lowerPolygon, 1);
 	}
 	else
 	{
 		painter->drawPolygon(polygon());
-		paintText(key->labelTop, polygon());
 	}
 	
 	painter->setPen(QPen());
 	
 	QGraphicsPolygonItem::paint(painter, option, widget);
-	
-	//painter->setBrush(lowerBrush);
-	//painter->drawPolygon(lowerPolygon);
-	
 }
 
 void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
@@ -144,11 +132,6 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 		item->setTextWidth(boundingRect().width()-1.0);
 		if (index == 1)
 			item->setY(boundingRect().height()/2.0);
-		//TODO trigger update of other texts size
-	}
-	else if (text == item->toPlainText())
-	{
-		return;
 	}
 	item->setPlainText(text);
 	if (text == "")
@@ -170,19 +153,36 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 	}
 }
 
-void QGraphicsKeyItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
+void QGraphicsKeyItem::updateContent()
 {
-	qDebug() << "contextMenuEvent";
-	StyleChooser *st = new StyleChooser();
-	st->show();
+	upperBrush.setColor(KeyItemModel::getColor(key->style[0], Qt::BackgroundRole));
+	upperBrush.setStyle(Qt::SolidPattern);
+	lowerBrush.setColor(KeyItemModel::getColor(key->style[1], Qt::BackgroundRole));
+	lowerBrush.setStyle(Qt::SolidPattern);
+	
+	update();
+	if (!key->labelBottom.isEmpty())
+	{
+		paintText(key->labelTop, upperPolygon);
+		paintText(key->labelBottom, lowerPolygon, 1);
+	}
+	else
+	{
+		paintText(key->labelTop, polygon());
+	}
+	
 }
 
-void QGraphicsKeyItem::keyPressEvent(QKeyEvent* event)
+int QGraphicsKeyItem::getPartIndex(QPointF pos)
 {
-
+	if (key->labelBottom.isEmpty()
+		|| mapFromScene(pos).y() <= upperPolygon.boundingRect().height())
+		return 0;
+	return 1;
 }
 
-void QGraphicsKeyItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
-{
-	qDebug() << "mousePressEvent";
-}
+
+
+
+
+

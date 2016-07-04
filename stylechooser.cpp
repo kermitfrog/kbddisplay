@@ -18,17 +18,75 @@
  */
 
 #include "stylechooser.h"
+#include <QPainter>
+#include <QDebug>
 
-StyleChooser::StyleChooser()
+KeyStyleDelegate::KeyStyleDelegate(QObject* parent): QItemDelegate(parent)
 {
+
+}
+
+void KeyStyleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+	int margin = 5;
+	painter->save();
+	QPen pen = index.data(Qt::ForegroundRole).value<QPen>();
+	pen.setWidthF(1.0);
+	painter->setPen(pen);
+	QBrush brush = index.data(Qt::BackgroundRole).value<QBrush>();
+	
+	// if Selected...
+	if (option.state & QStyle::State_Selected)
+		margin = 1;
+	
+	painter->setBrush(brush);
+	
+	// Background
+	painter->drawRect(margin,margin + index.row()*HEIGHT,
+					  ((StyleChooser*)parent())->width() - 2*margin,HEIGHT - margin*2);
+	// Text
+	pen.setStyle(Qt::SolidLine);
+	painter->drawText(10,index.row()*HEIGHT + 18, index.data().toString());
+	
+	painter->restore();
+}
+
+QSize KeyStyleDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+	return QSize(((StyleChooser*)parent())->width(), HEIGHT);
+}
+
+StyleChooser::StyleChooser(QWidget* parent) : QListWidget(parent)
+{
+	if (parent == nullptr) {
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+		setWindowTitle("stylechooser");
+	}
+	setItemDelegate(new KeyStyleDelegate(this));
+	connect(this, SIGNAL(itemClicked(QListWidgetItem*)),
+		this, SLOT(hide()));
+}
+
+void StyleChooser::updateStyles()
+{
+	clear();
 	foreach (QString key, KeyItemModel::colors.keys()) {
 		QListWidgetItem *item = new QListWidgetItem(key, this);
 		QPair<QColor, QColor> itemColors = KeyItemModel::colors[key];
-		QBrush fg, bg;
+		QBrush bg;
+		QPen fg;
 		fg.setColor(itemColors.first);
+		//fg.setStyle(Qt::SolidPattern);
 		bg.setColor(itemColors.second);
-		item->setForeground(fg);
-		item->setBackground(bg);
+		bg.setStyle(Qt::SolidPattern);
+		item->setData(Qt::ForegroundRole, fg);
+		item->setData(Qt::BackgroundRole, bg);
 	}
-	show();
 }
+
+void KeyStyleDelegate::addStyle(QString name, QPair< QColor, QColor > colors)
+{
+
+}
+
+

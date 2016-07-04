@@ -5,6 +5,7 @@
 #include "ui_kbddisplay.h"
 #include "keyitemmodel.h"
 #include "qgraphicskeyitem.h"
+#include "keyboardview.h"
 
 /*!
  * @brief Applications main window.
@@ -24,7 +25,7 @@ public slots:
 protected:	
 	virtual void resizeEvent(QResizeEvent * event);
 	QTableView *table;
-	QGraphicsView *view;
+	KeyboardView *view;
 	QGraphicsScene *scene;
 	KeyItemModel *model;
 	QMultiMap<QString,QGraphicsItem*> keys;

@@ -20,11 +20,31 @@
 #pragma once
 #include <QListWidget>
 #include <QWidget>
+#include <QItemDelegate>
 #include "keyitemmodel.h"
+
+class KeyStyleDelegate : public QItemDelegate
+{
+	const int HEIGHT = 30;
+public:
+    KeyStyleDelegate(QObject* parent = 0);
+	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) 
+	const Q_DECL_OVERRIDE;
+	
+protected:
+	virtual void paint(
+		QPainter *painter, 
+		const QStyleOptionViewItem &option, 
+		const QModelIndex &index) const;
+	void addStyle(QString name, QPair<QColor, QColor> colors);
+};
 
 class StyleChooser : public QListWidget
 {
+	Q_OBJECT
 public:
-    StyleChooser();
+    explicit StyleChooser(QWidget* parent = 0);
+public slots:
+	void updateStyles();
 };
 

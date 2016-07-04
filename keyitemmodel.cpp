@@ -19,12 +19,16 @@
 
 #include "keyitemmodel.h"
 #include <QDebug>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
 
 QMap< QString, QPair<QColor, QColor> > KeyItemModel::colors;
 
 KeyItemModel::KeyItemModel()
 {
 	loadColors();
+	//loadCodeToIdMap();
 }
 
 KeyItemModel::~KeyItemModel()
@@ -34,6 +38,7 @@ KeyItemModel::~KeyItemModel()
 
 void KeyItemModel::setKeys(QMultiMap<QString,QGraphicsItem*> keymap)
 {
+	QMap<QString, int> ctiMap = loadCodeToIdMap();
 	// FIXME :: each item is assigned (num of mappings) times to each mapping
 	foreach (QString s, keymap.keys()) {
 		KeyItem *item = new KeyItem(s);
@@ -42,10 +47,9 @@ void KeyItemModel::setKeys(QMultiMap<QString,QGraphicsItem*> keymap)
 		{
 			if (gi->type() == QGraphicsKeyItem::Type)
 				((QGraphicsKeyItem*) gi)->setKey(item);
-			qDebug() << "assigning " << s << " to Key at" << gi->sceneBoundingRect();
+			//qDebug() << "assigning " << s << " to Key at" << gi->sceneBoundingRect();
 		}
-		
-		
+		codeToKeyItemMap[ctiMap[item->keyId]] = item;
 	}
 }
 
@@ -131,10 +135,11 @@ void KeyItemModel::loadColors()
 	addColor("black",     Qt::white, Qt::black);
 	addColor("lightgray", Qt::black, Qt::lightGray);
 	addColor("darkgray",  Qt::white, Qt::darkGray);
-	addColor("yellow",    Qt::black, Qt::darkYellow);
+	addColor("brownish",  Qt::black, Qt::darkYellow);
 	addColor("cyan",      Qt::black, Qt::cyan);
 	addColor("red",       Qt::white, Qt::darkRed);
 	//addColor("", Qt::, Qt::);
+	emit stylesChanged();
 }
 
 void KeyItemModel::addColor(QString name, QColor fg, QColor bg)
@@ -168,3 +173,56 @@ KeyItem* KeyItemModel::key(const QModelIndex& index) const
 {
 	return nullptr;//TODO implement??
 }
+
+QMap<QString, int> KeyItemModel::loadCodeToIdMap()
+{
+	QMap<QString, int> codeToIdMap;
+	
+	QFile f("/home/arek/projects/kbddisplay/keymapping.xml");
+	if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "could not open mapping File for reading";
+		return codeToIdMap;
+	}
+    QXmlStreamReader reader(&f);
+	QXmlStreamAttributes attr;
+	while (!reader.atEnd()) {
+		reader.readNext();
+		
+		if ( (reader.isEndElement() && reader.name() != "key" )
+			|| reader.isEndDocument())
+			return codeToIdMap;
+		if (!reader.isStartElement() || reader.name() != "key")
+			continue;
+		
+		
+		attr = reader.attributes();
+		if (attr.hasAttribute("lxcode") && attr.hasAttribute("xevdevid"))
+			codeToIdMap[attr.value("xevdevid").toString()] = attr.value("lxcode").toInt();
+	}
+	return codeToIdMap;
+	
+}
+
+void KeyItem::setStyle(QString style, int index)
+{
+	this->style[index] = style;
+	updateItems();
+}
+
+void KeyItem::updateItems()
+{
+	foreach(QGraphicsKeyItem* it, graphicItems)
+		it->updateContent();
+}
+
+
+
+
+
+
+
+
+
+
+

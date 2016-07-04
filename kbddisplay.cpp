@@ -42,6 +42,7 @@ KbdDisplay::KbdDisplay()
 	model = new KeyItemModel();
 	model->setKeys(keys);
 	ui->tableView->setModel(model);
+	ui->graphicsView->setModel(model);
 	connect(model, SIGNAL(keyChanged(KeyItem*)), this, SLOT(keyChanged(KeyItem*)));
 	
 	// Mainwindows size. For some reason has to be at the end of the constructor.
@@ -72,8 +73,7 @@ void KbdDisplay::loadKbd(QString filename)
     QXmlStreamReader reader(&f);
 	
 	drawGroup(reader, nullptr, 0.0, 0.0);
-	printItemTree();
-
+	//printItemTree();
 }
 
 QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGroup* parent, 
@@ -118,8 +118,6 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 			if (reader.isEndElement())
 				return resultItem;
 			QGraphicsItemGroup * group = new QGraphicsItemGroup();
-			group->setFiltersChildEvents(true);
-			qDebug() << id << " filters: " << group->filtersChildEvents();
 			scene->addItem(group);
 			//if (parent != nullptr)
 			//	parent->addToGroup(group);
@@ -253,6 +251,8 @@ void KbdDisplay::keyChanged(KeyItem* item)
 {
 	foreach(QGraphicsItem* it, keys.values(item->keyId))
 	{
+		if (it->type() == QGraphicsKeyItem::Type)
+			((QGraphicsKeyItem*)it)->updateContent();
 		it->update();
 		continue;
 		/*QGraphicsTextItem *t = (QGraphicsTextItem*)it->childItems().at(0);
