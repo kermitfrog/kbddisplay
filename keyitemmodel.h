@@ -49,10 +49,14 @@ public:
 	QMap< int, KeyItem* > codeToKeyItemMap;
 	QVariant getBrushV(QString name, int role) const;
 	static QColor getColor(QString name, int role);
+	bool load(QString filename);
 	
 signals:
 	void keyChanged(KeyItem*);
 	void stylesChanged();
+	
+public slots:
+	void save(QString filename);
 	
 protected:
 	
@@ -68,6 +72,7 @@ protected:
 	QMap<QString, int> loadCodeToIdMap();
 	
 	QList<KeyItem*> items;
+	QMap<QString, KeyItem*> sortedItems;
 	
 };
 

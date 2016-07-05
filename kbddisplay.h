@@ -21,6 +21,10 @@ public:
 	
 public slots:
 	void keyChanged(KeyItem* item);
+	void open();
+	void save();
+	void saveAs();
+	void exportSVG();
 
 protected:	
 	virtual void resizeEvent(QResizeEvent * event);
@@ -33,6 +37,7 @@ protected:
 	QGraphicsItem * drawGroup(QXmlStreamReader &reader, QGraphicsItemGroup * parent,
 		double keywidth, double keyheight, bool row = false);
     QGraphicsItem* getItem(QString value);
+	QString filename;
 	
 
 private:

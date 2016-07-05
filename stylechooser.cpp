@@ -23,7 +23,6 @@
 
 KeyStyleDelegate::KeyStyleDelegate(QObject* parent): QItemDelegate(parent)
 {
-
 }
 
 void KeyStyleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -65,28 +64,45 @@ StyleChooser::StyleChooser(QWidget* parent) : QListWidget(parent)
 	setItemDelegate(new KeyStyleDelegate(this));
 	connect(this, SIGNAL(itemClicked(QListWidgetItem*)),
 		this, SLOT(hide()));
+	defaultItem = addStyle("default", QPair<QColor, QColor>(Qt::black, Qt::white));
 }
 
 void StyleChooser::updateStyles()
 {
 	clear();
+	QListWidgetItem * item;
 	foreach (QString key, KeyItemModel::colors.keys()) {
-		QListWidgetItem *item = new QListWidgetItem(key, this);
-		QPair<QColor, QColor> itemColors = KeyItemModel::colors[key];
-		QBrush bg;
-		QPen fg;
-		fg.setColor(itemColors.first);
-		//fg.setStyle(Qt::SolidPattern);
-		bg.setColor(itemColors.second);
-		bg.setStyle(Qt::SolidPattern);
-		item->setData(Qt::ForegroundRole, fg);
-		item->setData(Qt::BackgroundRole, bg);
+		item = addStyle(key, KeyItemModel::colors[key]);
+		if (key == "default")
+			defaultItem = item;
 	}
 }
 
-void KeyStyleDelegate::addStyle(QString name, QPair< QColor, QColor > colors)
+QListWidgetItem* StyleChooser::addStyle(QString name, QPair< QColor, QColor > colors)
 {
+		QListWidgetItem *item = new QListWidgetItem(name, this);
+		QBrush bg;
+		QPen fg;
+		fg.setColor(colors.first);
+		//fg.setStyle(Qt::SolidPattern);
+		bg.setColor(colors.second);
+		bg.setStyle(Qt::SolidPattern);
+		item->setData(Qt::ForegroundRole, fg);
+		item->setData(Qt::BackgroundRole, bg);
+		return item;
+}
 
+QListWidgetItem* StyleChooser::findItem(QString name)
+{
+	QList<QListWidgetItem*> list = findItems(name, Qt::MatchFixedString);
+	if (list.isEmpty())
+		return getDefault();
+	return list[0];
+}
+
+void StyleChooser::setCurrentText(QString text)
+{
+	setCurrentItem(findItem(text));
 }
 
 

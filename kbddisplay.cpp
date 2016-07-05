@@ -9,6 +9,7 @@
 #include <QGraphicsRectItem>
 #include <QXmlStreamReader>
 #include <QString>
+#include <QFileDialog>
 
 /*!
  * @brief Constructor of the main window. 
@@ -28,7 +29,13 @@ KbdDisplay::KbdDisplay()
 	ui = new Ui_KbdDisplay();
 	ui->setupUi(this);
 	setWindowTitle("KbdDisplay");
+	
+	// menu
 	connect(ui->actionQuit , SIGNAL(triggered()), SLOT(close()) );
+	connect(ui->action_Open, SIGNAL(triggered()), SLOT(open()));
+	connect(ui->actionExport_to_SVG, SIGNAL(triggered()), SLOT(exportSVG()));
+	connect(ui->actionSave, SIGNAL(triggered()), SLOT(save()));
+	connect(ui->actionSave_As, SIGNAL(triggered()), SLOT(saveAs()));
 	
 	scene = new QGraphicsScene();
 	ui->graphicsView->setScene(scene);
@@ -36,7 +43,7 @@ KbdDisplay::KbdDisplay()
 	ui->graphicsView->scale(4.0, 4.0);
 	
     //paintStuff();
-    loadKbd("/home/arek/projects/kbddisplay/freestyle2.xml");
+    loadKbd(QDir::currentPath() +  "/freestyle2.xml");
 	
 	// set up table
 	model = new KeyItemModel();
@@ -44,7 +51,9 @@ KbdDisplay::KbdDisplay()
 	ui->tableView->setModel(model);
 	ui->graphicsView->setModel(model);
 	connect(model, SIGNAL(keyChanged(KeyItem*)), this, SLOT(keyChanged(KeyItem*)));
+	connect(model, SIGNAL(stylesChanged()), ui->graphicsView->keyDialog, SLOT(stylesChanged()));
 	
+	ui->graphicsView->setFocus();
 	// Mainwindows size. For some reason has to be at the end of the constructor.
 	//setGeometry(settings.value("MainWindowGeometry", QRect(800,0,1200,600)).toRect());
 }
@@ -263,6 +272,40 @@ void KbdDisplay::keyChanged(KeyItem* item)
 		r->setBrush(brush);
 		*/
 	}
+}
+
+void KbdDisplay::exportSVG()
+{
+	QString svgFile = QFileDialog::getSaveFileName(this, tr("Save As..."), 
+		QDir::currentPath(), tr("SVG file (*.svg)")
+	);
+	ui->graphicsView->exportSVG(svgFile);
+}
+
+void KbdDisplay::open()
+{
+	QString fileToOpen = QFileDialog::getOpenFileName(this, tr("Open File"),
+		QDir::currentPath(), tr("KeyLayoutXML (*.xml)")
+	);
+	if (model->load(fileToOpen))
+		filename = fileToOpen;
+}
+
+void KbdDisplay::save()
+{
+	if (filename.isEmpty()) {
+		saveAs();
+		return;
+	}
+	model->save(filename);
+}
+
+void KbdDisplay::saveAs()
+{
+	filename = QFileDialog::getSaveFileName(this, tr("Save As..."), 
+		QDir::currentPath(), tr("KeyLayoutXML (*.xml)")
+	);
+	model->save(filename);
 }
 
 

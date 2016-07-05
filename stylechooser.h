@@ -36,7 +36,6 @@ protected:
 		QPainter *painter, 
 		const QStyleOptionViewItem &option, 
 		const QModelIndex &index) const;
-	void addStyle(QString name, QPair<QColor, QColor> colors);
 };
 
 class StyleChooser : public QListWidget
@@ -44,7 +43,13 @@ class StyleChooser : public QListWidget
 	Q_OBJECT
 public:
     explicit StyleChooser(QWidget* parent = 0);
+	QListWidgetItem* getDefault() {return defaultItem;};
+	QListWidgetItem* addStyle(QString name, QPair<QColor, QColor> colors);
+	QListWidgetItem* findItem(QString name);
 public slots:
 	void updateStyles();
+	void setCurrentText(QString text);
+protected:
+	QListWidgetItem* defaultItem;
 };
 

@@ -20,7 +20,9 @@
 #include "keyitemmodel.h"
 #include <QDebug>
 #include <QFile>
+#include <QDir>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 #include <QXmlStreamAttributes>
 
 QMap< QString, QPair<QColor, QColor> > KeyItemModel::colors;
@@ -41,7 +43,10 @@ void KeyItemModel::setKeys(QMultiMap<QString,QGraphicsItem*> keymap)
 	QMap<QString, int> ctiMap = loadCodeToIdMap();
 	// FIXME :: each item is assigned (num of mappings) times to each mapping
 	foreach (QString s, keymap.keys()) {
+		if (sortedItems.contains(s))
+			continue;
 		KeyItem *item = new KeyItem(s);
+		sortedItems[s] = item;
 		items.append(item);
 		foreach (QGraphicsItem *gi, keymap.values(s))
 		{
@@ -178,7 +183,7 @@ QMap<QString, int> KeyItemModel::loadCodeToIdMap()
 {
 	QMap<QString, int> codeToIdMap;
 	
-	QFile f("/home/arek/projects/kbddisplay/keymapping.xml");
+	QFile f(QDir::currentPath() + "/keymapping.xml");
 	if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
 		qDebug() << "could not open mapping File for reading";
@@ -216,7 +221,65 @@ void KeyItem::updateItems()
 		it->updateContent();
 }
 
+void KeyItemModel::save(QString filename)
+{
+	QFile f(filename);
+	if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		qDebug() << "could not open " << filename << "for writing";
+		return;
+	}
+    QXmlStreamWriter writer(&f);
+	QXmlStreamAttributes attr;
 
+	writer.setAutoFormatting(true);
+	writer.writeStartDocument();
+	writer.writeStartElement("keylayout");
+	foreach(KeyItem* key, items) {
+		writer.writeStartElement("key");
+		writer.writeAttribute("id", key->keyId);
+		writer.writeAttribute("mainlabel", key->labelTop);
+		writer.writeAttribute("secondlabel", key->labelBottom);
+		writer.writeAttribute("mainstyle", key->style[0]);
+		writer.writeAttribute("secondstyle", key->style[1]);
+		writer.writeEndElement();
+	}
+	writer.writeEndElement();
+	writer.writeEndDocument();
+	f.close();
+}
+
+bool KeyItemModel::load(QString filename)
+{
+	QFile f(filename);
+	if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "could not open " << filename << "for reading";
+		return false;
+	}
+    QXmlStreamReader reader(&f);
+	QXmlStreamAttributes attr;
+	
+	while (!reader.atEnd()) {
+		reader.readNext();
+		
+		if ( (reader.isEndElement() && reader.name() != "key" )
+			|| reader.isEndDocument())
+			return false;
+		if (!reader.isStartElement() || reader.name() != "key")
+			continue;
+		
+		attr = reader.attributes();
+		KeyItem *key = sortedItems[attr.value("id").toString()];
+		key->labelTop = attr.value("mainlabel").toString();
+		key->labelBottom = attr.value("secondlabel").toString();
+		key->style[0] = attr.value("mainstyle").toString();
+		key->style[1] = attr.value("secondstyle").toString();
+		key->updateItems();
+	}
+	f.close();
+	return true;
+}
 
 
 
