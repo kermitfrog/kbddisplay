@@ -62,8 +62,6 @@ StyleChooser::StyleChooser(QWidget* parent) : QListWidget(parent)
 		setWindowTitle("stylechooser");
 	}
 	setItemDelegate(new KeyStyleDelegate(this));
-	connect(this, SIGNAL(itemClicked(QListWidgetItem*)),
-		this, SLOT(hide()));
 	defaultItem = addStyle("default", QPair<QColor, QColor>(Qt::black, Qt::white));
 }
 

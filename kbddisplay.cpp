@@ -36,6 +36,7 @@ KbdDisplay::KbdDisplay()
 	connect(ui->actionExport_to_SVG, SIGNAL(triggered()), SLOT(exportSVG()));
 	connect(ui->actionSave, SIGNAL(triggered()), SLOT(save()));
 	connect(ui->actionSave_As, SIGNAL(triggered()), SLOT(saveAs()));
+	connect(ui->actionAutomap_current_Layout, SIGNAL(triggered()), ui->graphicsView, SLOT(autoMap()));
 	
 	scene = new QGraphicsScene();
 	ui->graphicsView->setScene(scene);
