@@ -17,40 +17,35 @@
  *
  */
 
-#pragma once
-#include <QListWidget>
-#include <QWidget>
-#include <QItemDelegate>
-#include "keyitemmodel.h"
+#ifndef STYLEDIALOG_H
+#define STYLEDIALOG_H
 
-class KeyStyleDelegate : public QItemDelegate
-{
-	const int HEIGHT = 30;
-public:
-    KeyStyleDelegate(QObject* parent = 0);
-	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) 
-	const Q_DECL_OVERRIDE;
-	
-protected:
-	virtual void paint(
-		QPainter *painter, 
-		const QStyleOptionViewItem &option, 
-		const QModelIndex &index) const;
-};
+#include <QDialog>
+#include <ui_styledialog.h>
+#include <QGraphicsTextItem>
+#include <QColorDialog>
+#include "style.h"
 
-class StyleChooser : public QListWidget
+class StyleDialog : public QDialog
 {
 	Q_OBJECT
 public:
-    explicit StyleChooser(QWidget* parent = 0);
-	QListWidgetItem* getDefault() {return defaultItem;};
-	QListWidgetItem* addStyle(Style *style);
-	QListWidgetItem* findItem(QString name);
+    StyleDialog();
+    virtual ~StyleDialog();
+	int exec(Style *styleToEdit, bool edit);
+	Style style;
+	
 public slots:
-	void updateStyles();
-	void setCurrentText(QString text);
+	void changeFG(QColor color);
+	void changeBG(QColor color);
+	void changFont(QFont font);
+	void changeSize(double size);
+	void changeName(QString& name);
+	
 protected:
-	QListWidgetItem* defaultItem;
-	QMap<Style*, QListWidgetItem*> itemMap;
+	Ui_StyleDialog *ui;
+	QGraphicsTextItem * it;
+	QColorDialog *fgDialog, *bgDialog;
 };
 
+#endif // STYLEDIALOG_H

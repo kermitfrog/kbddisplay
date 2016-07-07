@@ -17,40 +17,35 @@
  *
  */
 
-#pragma once
-#include <QListWidget>
-#include <QWidget>
-#include <QItemDelegate>
+#ifndef KEYBOARDVIEW_H
+#define KEYBOARDVIEW_H
+
+#include <QtWidgets/QGraphicsView>
+#include "stylechooser.h"
 #include "keyitemmodel.h"
+#include "keydialog.h"
 
-class KeyStyleDelegate : public QItemDelegate
-{
-	const int HEIGHT = 30;
-public:
-    KeyStyleDelegate(QObject* parent = 0);
-	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) 
-	const Q_DECL_OVERRIDE;
-	
-protected:
-	virtual void paint(
-		QPainter *painter, 
-		const QStyleOptionViewItem &option, 
-		const QModelIndex &index) const;
-};
-
-class StyleChooser : public QListWidget
+class KeyboardView : public QGraphicsView
 {
 	Q_OBJECT
 public:
-    explicit StyleChooser(QWidget* parent = 0);
-	QListWidgetItem* getDefault() {return defaultItem;};
-	QListWidgetItem* addStyle(Style *style);
-	QListWidgetItem* findItem(QString name);
+    KeyboardView(QWidget* parent = 0);
+	void setModel(KeyItemModel* model);
+	KeyDialog *keyDialog;
 public slots:
-	void updateStyles();
-	void setCurrentText(QString text);
+	void setStyle(QListWidgetItem* item);
+	void exportSVG(QString filename);
+	void autoMap();
+	//void updateItem(KeyItem* key);
+	
 protected:
-	QListWidgetItem* defaultItem;
-	QMap<Style*, QListWidgetItem*> itemMap;
+	KeyItem * currentKey = nullptr;
+	int currentIndex = 0;
+    virtual void contextMenuEvent(QContextMenuEvent* event);
+	StyleChooser *stylechooser;
+	KeyItemModel *model = nullptr;
+	virtual void keyPressEvent(QKeyEvent *event);
+	bool autoMapping = false;
 };
 
+#endif // KEYBOARDVIEW_H

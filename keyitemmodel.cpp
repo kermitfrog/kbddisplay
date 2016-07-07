@@ -25,11 +25,8 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttributes>
 
-QMap< QString, QPair<QColor, QColor> > KeyItemModel::colors;
-
 KeyItemModel::KeyItemModel()
 {
-	loadColors();
 	//loadCodeToIdMap();
 }
 
@@ -89,9 +86,9 @@ QVariant KeyItemModel::data(const QModelIndex& index, int role) const
 		case Qt::ForegroundRole:
 			switch (index.column()) {
 				case 1:
-					return getBrushV(item->style[0], role);
+					return StyleModel::model->getBrushV(item->style[0], role);
 				case 2:
-					return getBrushV(item->style[1], role);
+					return StyleModel::model->getBrushV(item->style[1], role);
 				default:
 					return QVariant();
 			}
@@ -134,45 +131,6 @@ Qt::ItemFlags KeyItemModel::flags(const QModelIndex& index) const
 	return flags;
 }
 
-void KeyItemModel::loadColors()
-{
-	addColor("default",   Qt::black, Qt::white);
-	addColor("black",     Qt::white, Qt::black);
-	addColor("lightgray", Qt::black, Qt::lightGray);
-	addColor("darkgray",  Qt::white, Qt::darkGray);
-	addColor("brownish",  Qt::black, Qt::darkYellow);
-	addColor("cyan",      Qt::black, Qt::cyan);
-	addColor("red",       Qt::white, Qt::darkRed);
-	//addColor("", Qt::, Qt::);
-	emit stylesChanged();
-}
-
-void KeyItemModel::addColor(QString name, QColor fg, QColor bg)
-{
-	colors.insert(name, QPair<QColor, QColor>(fg, bg));
-}
-
-QVariant KeyItemModel::getBrushV(QString name, int role) const
-{
-	if (name == "")
-		return getBrushV("default", role);
-	QBrush brush;
-	if (role == Qt::ForegroundRole)
-		brush.setColor(colors[name].first);
-	else
-		brush.setColor(colors[name].second);
-	return QVariant(brush);
-}
-
-QColor KeyItemModel::getColor(QString name, int role) 
-{
-	if (name == "")
-		return getColor("default", role);
-	if (role == Qt::ForegroundRole)
-		return colors[name].first;
-	else
-		return colors[name].second;
-}
 
 KeyItem* KeyItemModel::key(const QModelIndex& index) const
 {

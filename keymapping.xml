@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keymapping>
+	<key lxcode="9" xevdevid="ESC"/>
+
+	<key lxcode="119" xevdevid='DEL'/>
+	<key lxcode="0" xevdevid='FN' />
+	<key lxcode="135" xevdevid='MENU'/>
+
+	<key lxcode="67" xevdevid='FK01'/>
+	<key lxcode="68" xevdevid='FK02'/>
+	<key lxcode="69" xevdevid='FK03'/>
+	<key lxcode="70" xevdevid='FK04'/>
+	<key lxcode="71" xevdevid='FK05'/>
+	<key lxcode="72" xevdevid='FK06'/>
+	<key lxcode="73" xevdevid='FK07'/>
+
+	<key lxcode="49" xevdevid='TLDE'/>
+	<key lxcode="10" xevdevid='AE01'/>
+	<key lxcode="11" xevdevid='AE02'/>
+	<key lxcode="12" xevdevid='AE03'/>
+	<key lxcode="13" xevdevid='AE04'/>
+	<key lxcode="14" xevdevid='AE05'/>
+	<key lxcode="15" xevdevid='AE06'/>
+
+	<key lxcode="23" xevdevid='TAB'/>
+	<key lxcode="24" xevdevid='AD01'/>
+	<key lxcode="25" xevdevid='AD02'/>
+	<key lxcode="26" xevdevid='AD03'/>
+	<key lxcode="27" xevdevid='AD04'/>
+	<key lxcode="28" xevdevid='AD05'/>
+
+	<key lxcode="66" xevdevid='CAPS'/>
+	<key lxcode="38" xevdevid='AC01'/>
+	<key lxcode="39" xevdevid='AC02'/>
+	<key lxcode="40" xevdevid='AC03'/>
+	<key lxcode="41" xevdevid='AC04'/>
+	<key lxcode="42" xevdevid='AC05'/>
+
+	<key lxcode="50" xevdevid='LFSH'/>
+	<key lxcode="94" xevdevid='LSGT'/>
+	<key lxcode="52" xevdevid='AB01'/>
+	<key lxcode="53" xevdevid='AB02'/>
+	<key lxcode="54" xevdevid='AB03'/>
+	<key lxcode="55" xevdevid='AB04'/>
+	<key lxcode="56" xevdevid='AB05'/>
+
+	<key lxcode="37" xevdevid='LCTL'/>
+	<key lxcode="133" xevdevid='LWIN'/>
+	<key lxcode="64" xevdevid='LALT'/>
+	<key lxcode="65" xevdevid='SPCE'/>
+
+	<key lxcode="74" xevdevid='FK08'/>
+	<key lxcode="75" xevdevid='FK09'/>
+	<key lxcode="76" xevdevid='FK10'/>
+	<key lxcode="95" xevdevid='FK11'/>
+	<key lxcode="96" xevdevid='FK12'/>
+	<key lxcode="107" xevdevid='PRSC'/>
+	<key lxcode="127" xevdevid='PAUS'/>
+
+	<key lxcode="16" xevdevid='AE07'/>
+	<key lxcode="17" xevdevid='AE08'/>
+	<key lxcode="18" xevdevid='AE09'/>
+	<key lxcode="19" xevdevid='AE10'/>
+	<key lxcode="20" xevdevid='AE11'/>
+	<key lxcode="21" xevdevid='AE12'/>
+	<key lxcode="22" xevdevid='BKSP'/>
+	<key lxcode="110" xevdevid='HOME'/>
+
+	<key lxcode="29" xevdevid='AD06'/>
+	<key lxcode="30" xevdevid='AD07'/>
+	<key lxcode="31" xevdevid='AD08'/>
+	<key lxcode="32" xevdevid='AD09'/>
+	<key lxcode="33" xevdevid='AD10'/>
+	<key lxcode="34" xevdevid='AD11'/>
+	<key lxcode="35" xevdevid='AD12'/>
+
+	<key lxcode="36" xevdevid='RTRN'/>
+	<key lxcode="115" xevdevid='END'/>
+	<key lxcode="112" xevdevid='PGUP'/>
+
+	<key lxcode="43" xevdevid='AC06'/>
+	<key lxcode="44" xevdevid='AC07'/>
+	<key lxcode="45" xevdevid='AC08'/>
+	<key lxcode="46" xevdevid='AC09'/>
+	<key lxcode="47" xevdevid='AC10'/>
+	<key lxcode="48" xevdevid='AC11'/>
+	<key lxcode="51" xevdevid='BKSL'/>
+
+	<key lxcode="57" xevdevid='AB06'/>
+	<key lxcode="58" xevdevid='AB07'/>
+	<key lxcode="59" xevdevid='AB08'/>
+	<key lxcode="60" xevdevid='AB09'/>
+	<key lxcode="61" xevdevid='AB10'/>
+	<key lxcode="62" xevdevid='RTSH'/>
+	<key lxcode="111" xevdevid='UP'/>
+	<key lxcode="117" xevdevid='PGDN'/>
+
+	<key lxcode="108" xevdevid='RALT' />
+	<key lxcode="105" xevdevid='RCTL'/>
+	<key lxcode="113" xevdevid='LEFT'/>
+	<key lxcode="116" xevdevid='DOWN'/>
+	<key lxcode="114" xevdevid='RGHT'/>
+</keymapping>

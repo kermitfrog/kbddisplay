@@ -17,40 +17,37 @@
  *
  */
 
-#pragma once
-#include <QListWidget>
-#include <QWidget>
-#include <QItemDelegate>
+#ifndef KEYDIALOG_H
+#define KEYDIALOG_H
+
+#include <qt5/QtWidgets/qdialog.h>
+#include <ui_keydialog.h>
 #include "keyitemmodel.h"
+#include "styledialog.h"
 
-class KeyStyleDelegate : public QItemDelegate
-{
-	const int HEIGHT = 30;
-public:
-    KeyStyleDelegate(QObject* parent = 0);
-	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) 
-	const Q_DECL_OVERRIDE;
-	
-protected:
-	virtual void paint(
-		QPainter *painter, 
-		const QStyleOptionViewItem &option, 
-		const QModelIndex &index) const;
-};
-
-class StyleChooser : public QListWidget
+class KeyDialog : public QDialog
 {
 	Q_OBJECT
 public:
-    explicit StyleChooser(QWidget* parent = 0);
-	QListWidgetItem* getDefault() {return defaultItem;};
-	QListWidgetItem* addStyle(Style *style);
-	QListWidgetItem* findItem(QString name);
+    KeyDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+	int exec(KeyItem* key);
+	StyleChooser* getStyleChooser() {return ui->styleChooser;};
+	
 public slots:
-	void updateStyles();
-	void setCurrentText(QString text);
+	void styleChanged(QListWidgetItem* item);
+	void stylesChanged() {ui->styleChooser->updateStyles();};
+	void resetCurrentItems();
+	void addStyle();
+	void editStyle();
+	void deleteStyle();
+	
 protected:
-	QListWidgetItem* defaultItem;
-	QMap<Style*, QListWidgetItem*> itemMap;
+    virtual bool eventFilter(QObject* obj, QEvent* event);
+	Ui_KeyDialog* ui;
+	KeyItem *keyItem;
+	QListWidgetItem * currentItems[2];
+	bool focusChanging = false;
+	StyleDialog *styleDialog;
 };
 
+#endif // KEYDIALOG_H

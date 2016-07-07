@@ -23,6 +23,8 @@ set(kbddisplay_SRCS kbddisplay.cpp
 					keyboardview.cpp
 					keydialog.cpp
 					styledialog.cpp
+					style.cpp
+					stylemodel.cpp
 					)
 
 set(kbddisplay_UIS kbddisplay.ui keydialog.ui styledialog.ui)

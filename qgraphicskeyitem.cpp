@@ -138,7 +138,7 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 		return;
 	
 	
-	item->setDefaultTextColor(KeyItemModel::getColor(key->style[index], Qt::ForegroundRole));
+	item->setDefaultTextColor(StyleModel::model->getColor(key->style[index], Qt::ForegroundRole));
 	QFont font = item->font();
 	qreal size = polygon.boundingRect().height()/2.2;
 	font.setPointSizeF(size);
@@ -155,9 +155,9 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 
 void QGraphicsKeyItem::updateContent()
 {
-	upperBrush.setColor(KeyItemModel::getColor(key->style[0], Qt::BackgroundRole));
+	upperBrush.setColor(StyleModel::model->getColor(key->style[0], Qt::BackgroundRole));
 	upperBrush.setStyle(Qt::SolidPattern);
-	lowerBrush.setColor(KeyItemModel::getColor(key->style[1], Qt::BackgroundRole));
+	lowerBrush.setColor(StyleModel::model->getColor(key->style[1], Qt::BackgroundRole));
 	lowerBrush.setStyle(Qt::SolidPattern);
 	
 	update();

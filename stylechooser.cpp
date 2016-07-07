@@ -27,80 +27,74 @@ KeyStyleDelegate::KeyStyleDelegate(QObject* parent): QItemDelegate(parent)
 
 void KeyStyleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	int margin = 5;
-	painter->save();
-	QPen pen = index.data(Qt::ForegroundRole).value<QPen>();
-	pen.setWidthF(1.0);
-	painter->setPen(pen);
-	QBrush brush = index.data(Qt::BackgroundRole).value<QBrush>();
-	
-	// if Selected...
-	if (option.state & QStyle::State_Selected)
-		margin = 1;
-	
-	painter->setBrush(brush);
-	
-	// Background
-	painter->drawRect(margin,margin + index.row()*HEIGHT,
-					  ((StyleChooser*)parent())->width() - 2*margin,HEIGHT - margin*2);
-	// Text
-	pen.setStyle(Qt::SolidLine);
-	painter->drawText(10,index.row()*HEIGHT + 18, index.data().toString());
-	
-	painter->restore();
+    int margin = 5;
+    painter->save();
+    QPen pen = index.data(Qt::ForegroundRole).value<QPen>();
+    pen.setWidthF(1.0);
+    painter->setPen(pen);
+    QBrush brush = index.data(Qt::BackgroundRole).value<QBrush>();
+
+    // if Selected...
+    if (option.state & QStyle::State_Selected)
+        margin = 1;
+
+    painter->setBrush(brush);
+
+    // Background
+    painter->drawRect(margin,margin + index.row()*HEIGHT,
+                      ((StyleChooser*)parent())->width() - 2*margin,HEIGHT - margin*2);
+    // Text
+    pen.setStyle(Qt::SolidLine);
+    painter->drawText(10,index.row()*HEIGHT + 18, index.data().toString());
+
+    painter->restore();
 }
 
 QSize KeyStyleDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	return QSize(((StyleChooser*)parent())->width(), HEIGHT);
+    return QSize(((StyleChooser*)parent())->width(), HEIGHT);
 }
 
 StyleChooser::StyleChooser(QWidget* parent) : QListWidget(parent)
 {
-	if (parent == nullptr) {
-		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-		setWindowTitle("stylechooser");
-	}
-	setItemDelegate(new KeyStyleDelegate(this));
-	defaultItem = addStyle("default", QPair<QColor, QColor>(Qt::black, Qt::white));
+    if (parent == nullptr) {
+        setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+        setWindowTitle("stylechooser");
+    }
+    setItemDelegate(new KeyStyleDelegate(this));
+    defaultItem = addStyle(new Style());
 }
 
 void StyleChooser::updateStyles()
 {
-	clear();
-	QListWidgetItem * item;
-	foreach (QString key, KeyItemModel::colors.keys()) {
-		item = addStyle(key, KeyItemModel::colors[key]);
-		if (key == "default")
-			defaultItem = item;
-	}
+    clear();
+    QListWidgetItem * item;
+    foreach (QString key, StyleModel::model->styles.keys()) {
+        item = addStyle(StyleModel::model->styles[key]);
+        if (key == "default")
+            defaultItem = item;
+    }
 }
 
-QListWidgetItem* StyleChooser::addStyle(QString name, QPair< QColor, QColor > colors)
+QListWidgetItem* StyleChooser::addStyle(Style * style)
 {
-		QListWidgetItem *item = new QListWidgetItem(name, this);
-		QBrush bg;
-		QPen fg;
-		fg.setColor(colors.first);
-		//fg.setStyle(Qt::SolidPattern);
-		bg.setColor(colors.second);
-		bg.setStyle(Qt::SolidPattern);
-		item->setData(Qt::ForegroundRole, fg);
-		item->setData(Qt::BackgroundRole, bg);
-		return item;
+    QListWidgetItem *item = new QListWidgetItem(style->name, this);
+    item->setData(Qt::ForegroundRole, style->fg);
+    item->setData(Qt::BackgroundRole, style->bg);
+    return item;
 }
 
 QListWidgetItem* StyleChooser::findItem(QString name)
 {
-	QList<QListWidgetItem*> list = findItems(name, Qt::MatchFixedString);
-	if (list.isEmpty())
-		return getDefault();
-	return list[0];
+    QList<QListWidgetItem*> list = findItems(name, Qt::MatchFixedString);
+    if (list.isEmpty())
+        return getDefault();
+    return list[0];
 }
 
 void StyleChooser::setCurrentText(QString text)
 {
-	setCurrentItem(findItem(text));
+    setCurrentItem(findItem(text));
 }
 
 
