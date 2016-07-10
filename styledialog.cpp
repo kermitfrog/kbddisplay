@@ -45,7 +45,7 @@ StyleDialog::~StyleDialog()
 {
 	delete fgDialog;
 	delete bgDialog;
-	delete ui; // TODO find out if its auto deleted
+	delete ui; 
 }
 
 int StyleDialog::exec(Style *styleToEdit, bool edit)
@@ -64,6 +64,7 @@ int StyleDialog::exec(Style *styleToEdit, bool edit)
 	ui->fontComboBox->setCurrentFont(style.font);
 	ui->fontSizeSpinBox->setValue(style.font.pointSizeF());
 	QDialog::exec();
+	qDebug() << style.toString();
 }
 
 void StyleDialog::changeBG(QColor color)

@@ -18,6 +18,7 @@
  */
 
 #include "stylemodel.h"
+#include <QDebug>
 
 StyleModel *StyleModel::model = new StyleModel();
 
@@ -53,6 +54,17 @@ void StyleModel::addStyle(QString name, QColor fg, QColor bg)
 	stylesByPointer[newStyle] = name;
 	emit stylesChanged(StyleModel::New, newStyle);
 }
+
+void StyleModel::addStyle(Style* style)
+{
+	while (styles.contains(style->name))
+		style->name += "_";
+	styles.insert(style->name, style);
+	stylesByPointer[style] = style->name;
+	emit stylesChanged(StyleModel::New, style);
+	qDebug() << "Model::add " << style->toString();
+}
+
 
 QVariant StyleModel::getBrushV(QString name, int role) const
 {
@@ -90,8 +102,15 @@ void StyleModel::deleteStyle(Style* style)
 	emit stylesChanged(StyleModel::Delete, style);
 }
 
+void StyleModel::deleteStyle(QString style)
+{
+	deleteStyle(styles[style]);
+}
+
+
 bool StyleModel::styleChangedOk(Style* style)
 {
+	qDebug() << style->toString();
 	if (styles[style->name] == style) {
 		emit stylesChanged(StyleModel::Edit, style);
 		return true;

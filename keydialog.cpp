@@ -102,12 +102,9 @@ bool KeyDialog::eventFilter(QObject* obj, QEvent* event)
 		}
 		if (event->type() == QEvent::FocusIn)
 		{
+			checkCurrentItems();
 			if (obj == ui->mainLabelLineEdit)
-			{
-				qDebug() << currentItems[0];
-				qDebug() << currentItems[0]->data(Qt::DisplayRole).toString();
 				ui->styleChooser->setCurrentItem(currentItems[0]);
-			}
 			else
 				ui->styleChooser->setCurrentItem(currentItems[1]);
 			focusChanging = false;
@@ -127,8 +124,7 @@ void KeyDialog::addStyle()
 	if (result == Accepted)
 	{
 		Style *style = new Style(styleDialog->style);
-		StyleModel::model->styles[style->name] = style;
-		ui->styleChooser->updateStyles();
+		StyleModel::model->addStyle(style);
 	}
 }
 
@@ -137,8 +133,8 @@ void KeyDialog::deleteStyle()
 	QString name = ui->styleChooser->currentItem()->text();
 	if (QMessageBox::question(this, "Really Delete?", "Really delete style " + name) 
 		== QMessageBox::Yes) {
-		delete StyleModel::model->styles.take(name);
-		ui->styleChooser->updateStyles();
+		// FIXME occasional crash when style is used an some key -> race conditions
+		StyleModel::model->deleteStyle(name);
 	}
 }
 
@@ -148,9 +144,16 @@ void KeyDialog::editStyle()
 	int result = styleDialog->exec(edStyle, true);
 	if (result == Accepted)
 	{
-		edStyle->operator==(styleDialog->style);
-		// TODO stuff if name changes
-		ui->styleChooser->updateStyles();
+		(*edStyle) = styleDialog->style;
+		StyleModel::model->styleChangedOk(edStyle);
+	}
+}
+
+void KeyDialog::checkCurrentItems()
+{
+	for (int i = 0; i < 2; i++) {
+		if (!ui->styleChooser->isValidItem(currentItems[i]))
+			currentItems[i] = ui->styleChooser->getDefault();
 	}
 }
 

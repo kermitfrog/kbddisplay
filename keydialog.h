@@ -35,7 +35,6 @@ public:
 	
 public slots:
 	void styleChanged(QListWidgetItem* item);
-	void stylesChanged() {ui->styleChooser->updateStyles();};
 	void resetCurrentItems();
 	void addStyle();
 	void editStyle();
@@ -43,6 +42,7 @@ public slots:
 	
 protected:
     virtual bool eventFilter(QObject* obj, QEvent* event);
+    void checkCurrentItems();
 	Ui_KeyDialog* ui;
 	KeyItem *keyItem;
 	QListWidgetItem * currentItems[2];

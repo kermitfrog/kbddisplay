@@ -47,8 +47,6 @@ void KeyboardView::setModel(KeyItemModel* model)
 	if (this->model != nullptr)
 		QObject::disconnect(this->model, 0, stylechooser, 0);
 	this->model = model;
-	connect(model, SIGNAL(stylesChanged()), stylechooser, SLOT(updateStyles()));
-	stylechooser->updateStyles();
 }
 
 void KeyboardView::contextMenuEvent(QContextMenuEvent* event)

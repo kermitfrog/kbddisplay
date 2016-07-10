@@ -33,12 +33,13 @@ public:
 	void setFont(QFont f);
 	void setFont(QString f);
 	void setSize(qreal size);
-    bool operator==(const Style& other) const;
+    bool operator=(const Style& other);
 	void paint(QPainter &painter); // area
 	QString name;
 	QPen fg;
 	QBrush bg;
 	QFont font;
+	QString toString();
 };
 
 #endif // STYLE_H

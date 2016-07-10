@@ -52,7 +52,6 @@ KbdDisplay::KbdDisplay()
 	ui->tableView->setModel(model);
 	ui->graphicsView->setModel(model);
 	connect(model, SIGNAL(keyChanged(KeyItem*)), this, SLOT(keyChanged(KeyItem*)));
-	connect(model, SIGNAL(stylesChanged()), ui->graphicsView->keyDialog, SLOT(stylesChanged()));
 	
 	ui->graphicsView->setFocus();
 	// Mainwindows size. For some reason has to be at the end of the constructor.

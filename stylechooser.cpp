@@ -62,18 +62,47 @@ StyleChooser::StyleChooser(QWidget* parent) : QListWidget(parent)
         setWindowTitle("stylechooser");
     }
     setItemDelegate(new KeyStyleDelegate(this));
-    defaultItem = addStyle(new Style());
+    //defaultItem = addStyle(new Style());
+	
+	connect(StyleModel::model, SIGNAL(stylesChanged(StyleModel::ChangeType,Style*)), 
+			SLOT(updateStyles(StyleModel::ChangeType,Style*)));
+	updateStyles(StyleModel::All, nullptr);
 }
 
-void StyleChooser::updateStyles()
+void StyleChooser::updateStyles(StyleModel::ChangeType type, Style* style)
 {
-    clear();
-    QListWidgetItem * item;
-    foreach (QString key, StyleModel::model->styles.keys()) {
-        item = addStyle(StyleModel::model->styles[key]);
-        if (key == "default")
-            defaultItem = item;
-    }
+	QListWidgetItem * item;
+	switch (type) {
+		case StyleModel::All:
+			clear();
+			foreach (QString key, StyleModel::model->styles.keys()) {
+				item = addStyle(StyleModel::model->styles[key]);
+				if (key == "default")
+					defaultItem = item;
+			}
+			break;
+		case StyleModel::Delete:
+			item = itemMap.take(style);
+			if (item != nullptr) {
+				removeItemWidget(item);
+				delete item;
+			}
+			break;
+		case StyleModel::Edit:
+		case StyleModel::Name:
+			item = itemMap[style];
+			if (item != nullptr) {
+				item->setText(style->name);
+				item->setData(Qt::ForegroundRole, style->fg);
+				item->setData(Qt::BackgroundRole, style->bg);
+			} 
+			else 
+				qDebug() << "nullptr in updateStyles, style is " << style;
+			break;
+		case StyleModel::New:
+			addStyle(style);
+			break;
+	}
 }
 
 QListWidgetItem* StyleChooser::addStyle(Style * style)
@@ -81,6 +110,7 @@ QListWidgetItem* StyleChooser::addStyle(Style * style)
     QListWidgetItem *item = new QListWidgetItem(style->name, this);
     item->setData(Qt::ForegroundRole, style->fg);
     item->setData(Qt::BackgroundRole, style->bg);
+	itemMap[style] = item;
     return item;
 }
 
@@ -95,6 +125,11 @@ QListWidgetItem* StyleChooser::findItem(QString name)
 void StyleChooser::setCurrentText(QString text)
 {
     setCurrentItem(findItem(text));
+}
+
+bool StyleChooser::isValidItem(QListWidgetItem* item)
+{
+	return itemMap.values().contains(item);
 }
 
 

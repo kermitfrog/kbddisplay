@@ -35,12 +35,15 @@ Style::Style(QString name, QColor fgCol, QColor bgCol)
 
 Style::Style(const Style& other)
 {
-
+	operator=(other);
 }
 
-bool Style::operator==(const Style& other) const
+bool Style::operator=(const Style& other)
 {
-
+	name = other.name;
+	fg = other.fg;
+	bg = other.bg;
+	font = other.font;
 }
 
 void Style::setSize(qreal size)
@@ -61,4 +64,13 @@ void Style::setFont(QString f)
 void Style::setFont(QFont f)
 {
 
+}
+
+QString Style::toString()
+{
+	QString s = name + ": ";
+	s += "fg= " + fg.color().name();
+	s += " bg= " + bg.color().name();
+	s += " font= " + font.rawName();
+	return s;
 }

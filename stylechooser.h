@@ -46,8 +46,9 @@ public:
 	QListWidgetItem* getDefault() {return defaultItem;};
 	QListWidgetItem* addStyle(Style *style);
 	QListWidgetItem* findItem(QString name);
+    bool isValidItem(QListWidgetItem* item);
 public slots:
-	void updateStyles();
+	void updateStyles(StyleModel::ChangeType type, Style* style);
 	void setCurrentText(QString text);
 protected:
 	QListWidgetItem* defaultItem;

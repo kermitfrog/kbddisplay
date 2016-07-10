@@ -36,15 +36,17 @@ public:
 	QVariant getBrushV(QString name, int role) const;
 	QColor getColor(QString name, int role);
 	void addStyle(QString name, QColor fg, QColor bg);
+	void addStyle(Style* style);
 	bool styleChangedOk(Style * style);
 	void deleteStyle(Style * style);
+	void deleteStyle(QString style);
 	
 	QMap< QString, Style*> styles;
 	QMap< Style*, QString> stylesByPointer;
-	enum changeType{All, Edit, Name, New, Delete};
+	enum ChangeType{All, Edit, Name, New, Delete};
 	
 signals:
-	void stylesChanged(changeType type, Style* style);
+	void stylesChanged(StyleModel::ChangeType type, Style* style);
 	
 protected:
 	void loadColors();
