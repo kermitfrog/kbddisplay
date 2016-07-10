@@ -28,7 +28,7 @@
 KeyboardView::KeyboardView(QWidget* parent) 
   : QGraphicsView(parent)
 {
-	keyDialog = new KeyDialog();
+	keyDialog = new KeyDialog(this);
 	stylechooser = keyDialog->getStyleChooser();
 	connect(stylechooser, SIGNAL(itemChanged(QListWidgetItem*)),
 			this, SLOT(setStyle(QListWidgetItem*)));
@@ -81,6 +81,22 @@ void KeyboardView::keyPressEvent(QKeyEvent* event)
 
 void KeyboardView::autoMap()
 {
+	doAutoMap(false);
+}
+
+void KeyboardView::diffAutoMap()
+{
+	doAutoMap(true);
+}
+
+void KeyboardView::doAutoMap(bool diff)
+{
+	if (diff && !StyleModel::model->styles.contains("diff")) {
+		QMessageBox::information(this, "no \"diff\" style", 
+								 "Please set up a style named \"diff\"");
+		return;
+	}
+		
 	QList<int> codes = model->codeToKeyItemMap.keys();
 	QString platform = QGuiApplication::platformName();
 	if (platform == "xcb") {
@@ -114,7 +130,15 @@ void KeyboardView::autoMap()
 			
 			if (name.length() > 1 && value < 255)
 				name = QChar(value);
-			key->labelTop=name;
+			if (!diff || key->labelTop == name) {
+				key->labelTop=name;
+				if (key->style[0] == "")
+					key->setStyle("default", 0);
+			}
+			else {
+				key->labelTop = name;
+				key->setStyle("diff", 0);
+			}
 			key->updateItems();
 		}
 	}
@@ -142,6 +166,12 @@ void KeyboardView::exportSVG(QString filename)
 	scene()->render( &painter );
 }
 
+void KeyboardView::resizeEvent(QResizeEvent* event)
+{
+    QGraphicsView::resizeEvent(event);
+	fitInView(sceneRect(), Qt::KeepAspectRatio);
+	emit zoomChanged(transform().m11());
+}
 
 
 

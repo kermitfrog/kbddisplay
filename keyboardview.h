@@ -36,7 +36,11 @@ public slots:
 	void setStyle(QListWidgetItem* item);
 	void exportSVG(QString filename);
 	void autoMap();
+	void diffAutoMap();
 	//void updateItem(KeyItem* key);
+	
+signals:
+	void zoomChanged(double zoom);
 	
 protected:
 	KeyItem * currentKey = nullptr;
@@ -46,6 +50,8 @@ protected:
 	KeyItemModel *model = nullptr;
 	virtual void keyPressEvent(QKeyEvent *event);
 	bool autoMapping = false;
+	virtual void resizeEvent(QResizeEvent *event);
+	void doAutoMap(bool diff);
 };
 
 #endif // KEYBOARDVIEW_H

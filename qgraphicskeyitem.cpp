@@ -122,6 +122,10 @@ void QGraphicsKeyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
 
 void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 {
+	
+	if (key->style[index] == "")
+		return;
+	
 	const double TEXTMARGIN = 0.5;
 	QGraphicsTextItem * item = textItems[index];
 	if (item == nullptr) {
@@ -130,6 +134,8 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 		textItems[index] = item;
 		item->document()->setDocumentMargin(TEXTMARGIN);
 		item->setTextWidth(boundingRect().width()-1.0);
+		item->document()->setDefaultTextOption(
+			QTextOption(Qt::AlignCenter|Qt::AlignBottom));
 		if (index == 1)
 			item->setY(boundingRect().height()/2.0);
 	}
@@ -139,18 +145,19 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 	
 	
 	item->setDefaultTextColor(StyleModel::model->getColor(key->style[index], Qt::ForegroundRole));
-	QFont font = item->font();
-	qreal size = polygon.boundingRect().height()/2.2;
-	font.setPointSizeF(size);
+	QFont font = StyleModel::model->getFont(key->style[index]);
+	qreal size = font.pointSizeF();
 	item->setFont(font);
 	while (size > 0.25 && !polygon.boundingRect().contains(
 		item->mapRectToParent(item->boundingRect())))
 	{
-		//qDebug() << "bla: " << size << ", " << polygon.boundingRect() << " --- " << item->boundingRect();
 		size -= 0.25;
 		font.setPointSizeF(size);
 		item->setFont(font);
 	}
+	//qDebug() << "bla: " << size << ", " << polygon.boundingRect() << " --- " << item->boundingRect();
+	//item->moveBy(0.0, 7.0);
+	//item->moveBy(0.0, (polygon.boundingRect().height() - item->boundingRect().height()) / 2.0);
 }
 
 void QGraphicsKeyItem::updateContent()
@@ -160,7 +167,6 @@ void QGraphicsKeyItem::updateContent()
 	lowerBrush.setColor(StyleModel::model->getColor(key->style[1], Qt::BackgroundRole));
 	lowerBrush.setStyle(Qt::SolidPattern);
 	
-	update();
 	if (!key->labelBottom.isEmpty())
 	{
 		paintText(key->labelTop, upperPolygon);
@@ -170,6 +176,7 @@ void QGraphicsKeyItem::updateContent()
 	{
 		paintText(key->labelTop, polygon());
 	}
+	update();
 	
 }
 

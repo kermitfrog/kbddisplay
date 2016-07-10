@@ -25,16 +25,20 @@
 #include <QString>
 #include <QVariant>
 #include "style.h"
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
 
 class StyleModel : public QObject
 {
 	Q_OBJECT
 public:
 	static StyleModel *model;
+	static void init() { model = new StyleModel(); };
     StyleModel();
     ~StyleModel();
 	QVariant getBrushV(QString name, int role) const;
 	QColor getColor(QString name, int role);
+	QFont getFont(QString name) const;
 	void addStyle(QString name, QColor fg, QColor bg);
 	void addStyle(Style* style);
 	bool styleChangedOk(Style * style);
@@ -45,11 +49,18 @@ public:
 	QMap< Style*, QString> stylesByPointer;
 	enum ChangeType{All, Edit, Name, New, Delete};
 	
+	bool loadStyles(QXmlStreamReader &reader);
+	void saveStyles(QXmlStreamWriter &writer);
+
+public slots:
+	void saveDefaultStyles();
+	
 signals:
 	void stylesChanged(StyleModel::ChangeType type, Style* style);
 	
 protected:
 	void loadColors();
+	bool surpressSignals = false;
 };
 
 #endif // STYLEMODEL_H

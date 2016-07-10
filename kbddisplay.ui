@@ -49,11 +49,19 @@
     <property name="title">
      <string>E&amp;dit</string>
     </property>
-    <addaction name="actionStyles"/>
     <addaction name="actionAutomap_current_Layout"/>
+    <addaction name="actionLayout_diff"/>
+   </widget>
+   <widget class="QMenu" name="menuStyles">
+    <property name="title">
+     <string>St&amp;yles</string>
+    </property>
+    <addaction name="action_Save_as_Default"/>
+    <addaction name="action_Import"/>
    </widget>
    <addaction name="menuQuit"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuStyles"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionQuit">
@@ -88,7 +96,22 @@
   </action>
   <action name="actionAutomap_current_Layout">
    <property name="text">
-    <string>Automap current Layout</string>
+    <string>&amp;Automap current Layout</string>
+   </property>
+  </action>
+  <action name="action_Save_as_Default">
+   <property name="text">
+    <string>&amp;Save as Default</string>
+   </property>
+  </action>
+  <action name="action_Import">
+   <property name="text">
+    <string>&amp;Import</string>
+   </property>
+  </action>
+  <action name="actionLayout_diff">
+   <property name="text">
+    <string>Auto in &amp;diff mode</string>
    </property>
   </action>
  </widget>

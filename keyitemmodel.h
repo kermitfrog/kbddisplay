@@ -55,6 +55,7 @@ signals:
 	
 public slots:
 	void save(QString filename);
+	void updateAllItems();
 	
 protected:
 	

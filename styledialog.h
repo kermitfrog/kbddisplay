@@ -40,12 +40,14 @@ public slots:
 	void changeBG(QColor color);
 	void changFont(QFont font);
 	void changeSize(double size);
-	void changeName(QString& name);
+	void changeScale(double size);
+	void changeName(QString name);
 	
 protected:
 	Ui_StyleDialog *ui;
 	QGraphicsTextItem * it;
 	QColorDialog *fgDialog, *bgDialog;
+	double scale = 1.0;
 };
 
 #endif // STYLEDIALOG_H

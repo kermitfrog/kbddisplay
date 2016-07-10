@@ -53,7 +53,7 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Ma&amp;x Font Size</string>
+        <string>Ma&amp;x Font Size (in ~ mm on Keyboard)</string>
        </property>
        <property name="buddy">
         <cstring>fontSizeSpinBox</cstring>
@@ -61,7 +61,23 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="fontSizeSpinBox"/>
+      <widget class="QDoubleSpinBox" name="fontSizeSpinBox">
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="minimum">
+        <double>2.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>200.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.250000000000000</double>
+       </property>
+       <property name="value">
+        <double>6.000000000000000</double>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

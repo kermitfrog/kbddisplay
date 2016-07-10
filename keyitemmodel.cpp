@@ -53,6 +53,8 @@ void KeyItemModel::setKeys(QMultiMap<QString,QGraphicsItem*> keymap)
 		}
 		codeToKeyItemMap[ctiMap[item->keyId]] = item;
 	}
+	connect (StyleModel::model, SIGNAL(stylesChanged(StyleModel::ChangeType,Style*)),
+			 SLOT(updateAllItems()));
 }
 
 int KeyItemModel::columnCount(const QModelIndex& parent) const
@@ -192,6 +194,9 @@ void KeyItemModel::save(QString filename)
 
 	writer.setAutoFormatting(true);
 	writer.writeStartDocument();
+	writer.writeStartElement("kbdDisplayLayout");
+	StyleModel::model->saveStyles(writer);
+	
 	writer.writeStartElement("keylayout");
 	foreach(KeyItem* key, items) {
 		writer.writeStartElement("key");
@@ -202,7 +207,8 @@ void KeyItemModel::save(QString filename)
 		writer.writeAttribute("secondstyle", key->style[1]);
 		writer.writeEndElement();
 	}
-	writer.writeEndElement();
+	writer.writeEndElement(); // keylayout
+	writer.writeEndElement(); // kbdDisplayLayout
 	writer.writeEndDocument();
 	f.close();
 }
@@ -220,25 +226,39 @@ bool KeyItemModel::load(QString filename)
 	
 	while (!reader.atEnd()) {
 		reader.readNext();
-		
-		if ( (reader.isEndElement() && reader.name() != "key" )
-			|| reader.isEndDocument())
-			return false;
-		if (!reader.isStartElement() || reader.name() != "key")
+		if (reader.isStartElement() && reader.name() == "kbdDisplayLayout")
 			continue;
 		
-		attr = reader.attributes();
-		KeyItem *key = sortedItems[attr.value("id").toString()];
-		key->labelTop = attr.value("mainlabel").toString();
-		key->labelBottom = attr.value("secondlabel").toString();
-		key->style[0] = attr.value("mainstyle").toString();
-		key->style[1] = attr.value("secondstyle").toString();
-		key->updateItems();
+		if (reader.isStartElement() && reader.name() == "keylayout")
+			while (!reader.atEnd()) {
+				reader.readNext();
+				if (reader.isEndElement() && reader.name() == "keylayout")
+					break;
+				
+				if (!reader.isStartElement() || reader.name() != "key")
+					continue;
+				
+				attr = reader.attributes();
+				KeyItem *key = sortedItems[attr.value("id").toString()];
+				key->labelTop = attr.value("mainlabel").toString();
+				key->labelBottom = attr.value("secondlabel").toString();
+				key->style[0] = attr.value("mainstyle").toString();
+				key->style[1] = attr.value("secondstyle").toString();
+				key->updateItems();
+			}
+		else if (reader.isStartElement() && reader.name() == "styles")
+			StyleModel::model->loadStyles(reader);
 	}
 	f.close();
 	return true;
 }
 
+void KeyItemModel::updateAllItems()
+{
+	qDebug() << "updateAllItems";
+	foreach (KeyItem* key, items)
+		key->updateItems();
+}
 
 
 

@@ -23,6 +23,7 @@
 #include <QAbstractButton>
 #include <QMessageBox>
 #include <QDebug>
+#include "keyboardview.h"
 
 KeyDialog::KeyDialog(QWidget* parent, Qt::WindowFlags f): QDialog(parent, f)
 {
@@ -40,6 +41,8 @@ KeyDialog::KeyDialog(QWidget* parent, Qt::WindowFlags f): QDialog(parent, f)
 	connect(ui->addStyleButton, SIGNAL(pressed()), SLOT(addStyle()));
 	connect(ui->editStyleButton, SIGNAL(pressed()), SLOT(editStyle()));
 	connect(ui->deleteStyleButton, SIGNAL(pressed()), SLOT(deleteStyle()));
+	connect((KeyboardView*) parent, SIGNAL(zoomChanged(double)), 
+			styleDialog, SLOT(changeScale(double)));
 }
 
 void KeyDialog::styleChanged(QListWidgetItem* item)

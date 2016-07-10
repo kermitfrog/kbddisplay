@@ -33,6 +33,8 @@ void KeyStyleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
     pen.setWidthF(1.0);
     painter->setPen(pen);
     QBrush brush = index.data(Qt::BackgroundRole).value<QBrush>();
+	QFont font = index.data(Qt::FontRole).value<QFont>();
+	font.setPointSizeF(9.0);
 
     // if Selected...
     if (option.state & QStyle::State_Selected)
@@ -45,6 +47,7 @@ void KeyStyleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
                       ((StyleChooser*)parent())->width() - 2*margin,HEIGHT - margin*2);
     // Text
     pen.setStyle(Qt::SolidLine);
+	painter->setFont(font);
     painter->drawText(10,index.row()*HEIGHT + 18, index.data().toString());
 
     painter->restore();
@@ -95,6 +98,7 @@ void StyleChooser::updateStyles(StyleModel::ChangeType type, Style* style)
 				item->setText(style->name);
 				item->setData(Qt::ForegroundRole, style->fg);
 				item->setData(Qt::BackgroundRole, style->bg);
+				item->setData(Qt::FontRole, style->font);
 			} 
 			else 
 				qDebug() << "nullptr in updateStyles, style is " << style;

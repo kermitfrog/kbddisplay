@@ -39,6 +39,11 @@ StyleDialog::StyleDialog()
 	
 	connect(ui->fontComboBox, SIGNAL(currentFontChanged(QFont)), SLOT(changFont(QFont)));
 	connect(ui->fontSizeSpinBox, SIGNAL(valueChanged(double)), SLOT(changeSize(double)));
+	connect(ui->nameEdit, SIGNAL(textChanged(QString)), SLOT(changeName(QString)));
+	
+	// FIXME shouldn't be neccessary, but Dialogs sometimes block
+	fgDialog->setModal(true);
+	bgDialog->setModal(true);
 }
 
 StyleDialog::~StyleDialog()
@@ -51,6 +56,9 @@ StyleDialog::~StyleDialog()
 int StyleDialog::exec(Style *styleToEdit, bool edit)
 {
 	style = (*styleToEdit);
+	ui->nameEdit->setFocus();
+	ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+	qDebug() << "StyleDialog opened for " << style.toString();
 	if (!edit)
 	{
 		style.name = "New Style";
@@ -83,17 +91,28 @@ void StyleDialog::changFont(QFont font)
 {
 	font.setPointSizeF(ui->fontSizeSpinBox->value());
 	style.font = font;
-	it->setFont(font);
+	QFont itFont = font;
+	itFont.setPointSizeF(font.pointSizeF() * scale);
+	it->setFont(itFont);
 }
 
 void StyleDialog::changeSize(double size)
 {
 	style.font.setPointSizeF(size);
-	it->setFont(style.font);
+	QFont itFont = style.font;
+	itFont.setPointSizeF(style.font.pointSizeF() * scale);
+	it->setFont(itFont);
 }
 
-void StyleDialog::changeName(QString& name)
+void StyleDialog::changeName(QString name)
 {
 	style.name = name;
+}
+
+void StyleDialog::changeScale(double size)
+{
+	scale = size;
+	QFont itFont = style.font;
+	itFont.setPointSizeF(style.font.pointSizeF() * scale);
 }
 

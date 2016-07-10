@@ -22,6 +22,7 @@ KbdDisplay::KbdDisplay()
 	QCoreApplication::setApplicationName("KbdDisplay");
 	QCoreApplication::setOrganizationName("de.aguzinski");
 	//settings.load();
+	StyleModel::init();
 
 	// ui stuff
 	
@@ -37,6 +38,10 @@ KbdDisplay::KbdDisplay()
 	connect(ui->actionSave, SIGNAL(triggered()), SLOT(save()));
 	connect(ui->actionSave_As, SIGNAL(triggered()), SLOT(saveAs()));
 	connect(ui->actionAutomap_current_Layout, SIGNAL(triggered()), ui->graphicsView, SLOT(autoMap()));
+	connect(ui->actionLayout_diff, SIGNAL(triggered(bool)), ui->graphicsView, SLOT(diffAutoMap()));
+	connect(ui->action_Save_as_Default, SIGNAL(triggered(bool)), 
+		StyleModel::model, SLOT(saveDefaultStyles()));
+	
 	
 	scene = new QGraphicsScene();
 	ui->graphicsView->setScene(scene);

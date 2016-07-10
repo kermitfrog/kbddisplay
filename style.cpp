@@ -18,6 +18,7 @@
  */
 
 #include "style.h"
+#include <QGuiApplication>
 
 Style::Style()
 {
@@ -30,6 +31,8 @@ Style::Style(QString name, QColor fgCol, QColor bgCol)
 	fg.setColor(fgCol);
 	bg.setColor(bgCol);
 	bg.setStyle(Qt::SolidPattern);
+	//font = QGuiApplication::font();
+	font.setPointSizeF(DEFMAXSIZE);
 }
 
 
@@ -71,6 +74,7 @@ QString Style::toString()
 	QString s = name + ": ";
 	s += "fg= " + fg.color().name();
 	s += " bg= " + bg.color().name();
-	s += " font= " + font.rawName();
+	s += " font= " + font.family();
+	s += " size= " + QString::number(font.pointSizeF());
 	return s;
 }

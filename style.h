@@ -26,6 +26,7 @@
 
 class Style
 {
+	const double DEFMAXSIZE = 6.0;
 public:
     Style();
 	Style(QString name, QColor fgCol = Qt::black, QColor bgCol = Qt::white);

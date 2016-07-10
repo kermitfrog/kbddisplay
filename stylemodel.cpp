@@ -19,8 +19,10 @@
 
 #include "stylemodel.h"
 #include <QDebug>
+#include <QFile>
+#include <QDir>
 
-StyleModel *StyleModel::model = new StyleModel();
+StyleModel *StyleModel::model;
 
 StyleModel::StyleModel()
 {
@@ -34,14 +36,31 @@ StyleModel::~StyleModel()
 
 void StyleModel::loadColors()
 {
-	addStyle("default",   Qt::black, Qt::white);
-	addStyle("black",     Qt::white, Qt::black);
-	addStyle("lightgray", Qt::black, Qt::lightGray);
-	addStyle("darkgray",  Qt::white, Qt::darkGray);
-	addStyle("brownish",  Qt::black, Qt::darkYellow);
-	addStyle("cyan",      Qt::black, Qt::cyan);
-	addStyle("red",       Qt::white, Qt::darkRed);
-	//addColor("", Qt::, Qt::);
+	QFile f(QDir::currentPath() + "/defaultstyles.xml");
+	if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		surpressSignals = true;
+		addStyle("default",   Qt::black, Qt::white);
+		addStyle("black",     Qt::white, Qt::black);
+		addStyle("lightgray", Qt::black, Qt::lightGray);
+		addStyle("darkgray",  Qt::white, Qt::darkGray);
+		addStyle("brownish",  Qt::black, Qt::darkYellow);
+		addStyle("cyan",      Qt::black, Qt::cyan);
+		addStyle("red",       Qt::white, Qt::darkRed);
+		//addColor("", Qt::, Qt::);
+		surpressSignals = false;
+		return;
+	}
+    QXmlStreamReader reader(&f);
+	QXmlStreamAttributes attr;
+	
+	while (!reader.atEnd()) {
+		reader.readNext();
+		if (reader.isStartElement() && reader.name() == "styles")
+			loadStyles(reader);
+	}
+	f.close();
+	surpressSignals = false;
 	emit stylesChanged(All, nullptr);
 }
 
@@ -52,7 +71,8 @@ void StyleModel::addStyle(QString name, QColor fg, QColor bg)
 	Style *newStyle = new Style(name, fg, bg);
 	styles.insert(name, newStyle);
 	stylesByPointer[newStyle] = name;
-	emit stylesChanged(StyleModel::New, newStyle);
+	if (!surpressSignals)
+		emit stylesChanged(StyleModel::New, newStyle);
 }
 
 void StyleModel::addStyle(Style* style)
@@ -61,7 +81,8 @@ void StyleModel::addStyle(Style* style)
 		style->name += "_";
 	styles.insert(style->name, style);
 	stylesByPointer[style] = style->name;
-	emit stylesChanged(StyleModel::New, style);
+	if (!surpressSignals)
+		emit stylesChanged(StyleModel::New, style);
 	qDebug() << "Model::add " << style->toString();
 }
 
@@ -99,7 +120,8 @@ void StyleModel::deleteStyle(Style* style)
 		delete styles.take(name);
 	}
 	stylesByPointer.remove(style);
-	emit stylesChanged(StyleModel::Delete, style);
+	if (!surpressSignals)
+		emit stylesChanged(StyleModel::Delete, style);
 }
 
 void StyleModel::deleteStyle(QString style)
@@ -112,7 +134,8 @@ bool StyleModel::styleChangedOk(Style* style)
 {
 	qDebug() << style->toString();
 	if (styles[style->name] == style) {
-		emit stylesChanged(StyleModel::Edit, style);
+		if (!surpressSignals)
+			emit stylesChanged(StyleModel::Edit, style);
 		return true;
 	}
 	bool result = true;
@@ -125,7 +148,86 @@ bool StyleModel::styleChangedOk(Style* style)
 	styles.remove(name);
 	styles[name] = style;
 	stylesByPointer[style] = name;
-	emit stylesChanged(StyleModel::Name, style);
+	if (!surpressSignals)
+		emit stylesChanged(StyleModel::Name, style);
 	return result;
 }
+
+QFont StyleModel::getFont(QString name) const
+{
+	if (styles.contains(name))
+		return styles[name]->font;
+	return QFont();
+}
+
+bool StyleModel::loadStyles(QXmlStreamReader& reader)
+{
+	surpressSignals = true;
+	foreach (Style *style, stylesByPointer.keys())
+		delete style;
+	stylesByPointer.clear();
+	styles.clear();
+	
+	QXmlStreamAttributes attr;
+	while (!reader.atEnd()) {
+		reader.readNext();
+		
+		if (reader.isEndElement() && reader.name() == "styles" )
+			break;
+		if ( (reader.isEndElement() && reader.name() != "style" )
+			|| reader.isEndDocument()) {
+			qDebug() << "not ok";
+			surpressSignals = false;
+			return false;
+		}
+		if (!reader.isStartElement() || reader.name() != "style")
+			continue;
+		
+		attr = reader.attributes();
+		Style *style = new Style( 
+			attr.value("name").toString(),
+			QColor(attr.value("fg").toString()),
+			QColor(attr.value("bg").toString())
+		);
+		style->setFont(attr.value("font").toString());
+		style->setSize(attr.value("maxFontSize").toDouble());
+		addStyle(style);
+	}
+	surpressSignals = false;
+	qDebug() << "ok";
+	emit stylesChanged(All, nullptr);
+}
+
+void StyleModel::saveStyles(QXmlStreamWriter& writer)
+{
+	writer.writeStartElement("styles");
+	foreach(Style *style, stylesByPointer.keys()) {
+		writer.writeStartElement("style");
+		writer.writeAttribute("name", style->name);
+		writer.writeAttribute("fg", style->fg.color().name());
+		writer.writeAttribute("bg", style->bg.color().name());
+		writer.writeAttribute("font", style->font.family());
+		writer.writeAttribute("maxFontSize", QString::number(style->font.pointSizeF()));
+		writer.writeEndElement();
+	}
+	writer.writeEndElement();
+}
+
+void StyleModel::saveDefaultStyles()
+{
+	QFile f(QDir::currentPath() + "/defaultstyles.xml");
+	if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		qDebug() << "could not open \"defaultstyles.xml\" for writing";
+		return;
+	}
+    QXmlStreamWriter writer(&f);
+	writer.setAutoFormatting(true);
+	writer.writeStartDocument();
+	saveStyles(writer);
+	writer.writeEndDocument();
+	f.close();
+}
+
+
 
