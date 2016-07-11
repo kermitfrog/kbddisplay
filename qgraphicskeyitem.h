@@ -36,7 +36,8 @@ public:
 	
     QGraphicsKeyItem(const QPolygonF& polygon, QGraphicsItem* parent = Q_NULLPTR);
     QGraphicsKeyItem(const QRectF& polygon, QGraphicsItem* parent = Q_NULLPTR);
-    QGraphicsKeyItem(qreal x, qreal y, qreal width, qreal height, QGraphicsItem* parent = Q_NULLPTR);
+    QGraphicsKeyItem(qreal diameter, QGraphicsItem* parent = Q_NULLPTR);
+	
     virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget);
 	void setKey(KeyItem * key);
 	virtual int type() const {return Type; };

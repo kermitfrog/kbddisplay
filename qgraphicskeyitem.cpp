@@ -94,6 +94,23 @@ QGraphicsKeyItem::QGraphicsKeyItem(const QPolygonF& polygon, QGraphicsItem* pare
 	commonInit();
 }
 
+QGraphicsKeyItem::QGraphicsKeyItem(qreal diameter, QGraphicsItem* parent): QGraphicsPolygonItem(parent)
+{
+	QPolygonF mockCircle;
+	QLineF helper;
+	helper.setP1(QPointF(diameter/2, diameter/2));
+	helper.setP2(QPointF(diameter, diameter/2));
+// 	mockCircle << helper.p2();
+	for (int i = 1; i < 36; i++) {
+		helper.setAngle(10.0 * i);
+		mockCircle << helper.p2();
+	}
+	helper.setAngle(0.0);
+	mockCircle << helper.p2();
+	setPolygon(mockCircle);
+// 	qDebug() << "mockCircle: " << mockCircle;
+	commonInit();
+}
 
 void QGraphicsKeyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {

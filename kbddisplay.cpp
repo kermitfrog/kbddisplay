@@ -49,7 +49,7 @@ KbdDisplay::KbdDisplay()
 	ui->graphicsView->scale(4.0, 4.0);
 	
     //paintStuff();
-    loadKbd(QDir::currentPath() +  "/freestyle2.xml");
+    loadKbd(QDir::currentPath() +  "/keyboards/default.xml");
 	
 	// set up table
 	model = new KeyItemModel();
@@ -108,7 +108,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		if (!reader.isStartElement())
 			continue;
 		
-		double_t x = 0.0, y = 0.0;
+		double_t x = 0.0, y = 0.0, margin = 0.5;
 		attr = reader.attributes();
 		if (attr.hasAttribute("keywidth"))
 			keywidth = attr.value("keywidth").toDouble();
@@ -141,6 +141,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 			groups[id] = (QGraphicsItemGroup*) item;
 			groupX = x;
 			groupY = y;
+			margin = 0.0;
 		}
 		else if (reader.name() == "key")
 		{
@@ -160,6 +161,11 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 					polygon.append(QPointF(plist[0].toDouble(), plist[1].toDouble()));
 				}
 				item = new QGraphicsKeyItem(polygon);
+			}
+			else if (attr.hasAttribute("d"))
+			{
+				qreal diameter = attr.value("d").toDouble();
+				item = new QGraphicsKeyItem(diameter);
 			}
 			else
 			{
@@ -207,7 +213,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		}
 		
 		
-		item->moveBy(groupX + x + p.x() + 0.5, groupY + y + p.y() + 0.5);
+		item->moveBy(groupX + x + p.x() + margin, groupY + y + p.y() + margin);
 		//item->moveBy(groupX + x + p.x() + 1, groupY + y + p.y() + 1);
 		//item->moveBy(groupX + x + p.x() , groupY + y + p.y());
 		lastItem = item;

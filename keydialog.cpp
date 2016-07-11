@@ -57,6 +57,11 @@ void KeyDialog::styleChanged(QListWidgetItem* item)
 
 int KeyDialog::exec(KeyItem* key)
 {
+	if (key == nullptr) {
+		qDebug() << "can't open dialog for unknown key!";
+		return Rejected;
+	}
+	
 	setWindowTitle(tr("Set labels for ") + key->keyId);
 	if (key == nullptr || ui->styleChooser->count() == 0)
 		return QDialog::Rejected;
@@ -136,7 +141,7 @@ void KeyDialog::deleteStyle()
 	QString name = ui->styleChooser->currentItem()->text();
 	if (QMessageBox::question(this, "Really Delete?", "Really delete style " + name) 
 		== QMessageBox::Yes) {
-		// FIXME occasional crash when style is used an some key -> race conditions
+		// FIXME occasional crash when style is used on some key -> race conditions
 		StyleModel::model->deleteStyle(name);
 	}
 }
