@@ -31,6 +31,9 @@ KbdDisplay::KbdDisplay()
 	ui->setupUi(this);
 	setWindowTitle("KbdDisplay");
 	
+	// toolbar
+	setUpToolbar();
+	
 	// menu
 	connect(ui->actionQuit , SIGNAL(triggered()), SLOT(close()) );
 	connect(ui->action_Open, SIGNAL(triggered()), SLOT(open()));
@@ -48,17 +51,14 @@ KbdDisplay::KbdDisplay()
 	scene->setBackgroundBrush(QBrush(QColor(Qt::white)));
 	ui->graphicsView->scale(4.0, 4.0);
 	
-    //paintStuff();
-    loadKbd(QDir::currentPath() +  "/keyboards/default.xml");
-	
 	// set up table
 	model = new KeyItemModel();
-	model->setKeys(keys);
 	ui->tableView->setModel(model);
 	ui->graphicsView->setModel(model);
 	connect(model, SIGNAL(keyChanged(KeyItem*)), this, SLOT(keyChanged(KeyItem*)));
 	
 	ui->graphicsView->setFocus();
+	loadKbd("default.xml");
 	// Mainwindows size. For some reason has to be at the end of the constructor.
 	//setGeometry(settings.value("MainWindowGeometry", QRect(800,0,1200,600)).toRect());
 }
@@ -71,9 +71,24 @@ KbdDisplay::~KbdDisplay()
 	//settings.setValue("MainWindowGeometry", geometry());
 }
 
+void KbdDisplay::setUpToolbar()
+{
+	keyboardsComboBox = new QComboBox(ui->toolBar);
+	ui->toolBar->addWidget(keyboardsComboBox);
+	QDir dir;
+	dir.cd("keyboards");
+	QStringList filters;
+    filters << "*.xml";
+    dir.setNameFilters(filters);
+	QStringList kbdList = dir.entryList();
+	keyboardsComboBox->addItems(kbdList);
+	connect(keyboardsComboBox, SIGNAL(currentTextChanged(QString)), SLOT(loadKbd(QString)));
+}
+
+
 void KbdDisplay::loadKbd(QString filename)
 {
-	
+	filename = QDir::currentPath() + "/keyboards/" + filename;
 	QFile f(filename);
 	if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
@@ -86,12 +101,17 @@ void KbdDisplay::loadKbd(QString filename)
 	
     QXmlStreamReader reader(&f);
 	
-	drawGroup(reader, nullptr, 0.0, 0.0);
+	drawGroup(reader, nullptr, 0.0, 0.0, 0.0);
 	//printItemTree();
+	f.close();
+	model->setKeys(keys);
+	scene->setSceneRect(scene->itemsBoundingRect());
+	//FIXME next line crashes the programm ... why????
+	//view->fitInView(scene->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGroup* parent, 
-									 double keywidth, double keyheight, bool row)
+									 double keywidth, double keyheight, double margin)
 {
 	QString id;
 	QXmlStreamAttributes attr;
@@ -108,12 +128,9 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		if (!reader.isStartElement())
 			continue;
 		
-		double_t x = 0.0, y = 0.0, margin = 0.5;
+		double x = 0.0, y = 0.0;
+		double curKeyheight = keyheight, curKeywidth = keywidth, curMargin = margin;
 		attr = reader.attributes();
-		if (attr.hasAttribute("keywidth"))
-			keywidth = attr.value("keywidth").toDouble();
-		if (attr.hasAttribute("keyheight"))
-			keyheight = attr.value("keyheight").toDouble();
 		if (attr.hasAttribute("x"))
 			x = attr.value("x").toDouble();
 		if (attr.hasAttribute("y"))
@@ -125,23 +142,35 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		if (reader.name() == "keyboard")
 		{
 			id = attr.value("name").toString();
+			if (attr.hasAttribute("keywidth"))
+				keywidth = attr.value("keywidth").toDouble();
+			if (attr.hasAttribute("keyheight"))
+				keyheight = attr.value("keyheight").toDouble();
+			if (attr.hasAttribute("margin"))
+				margin = attr.value("margin").toDouble();
 			continue;
 		}
 		else if (reader.name() == "group" || reader.name() == "row")
 		{
 			if (reader.isEndElement())
 				return resultItem;
+			if (attr.hasAttribute("keywidth"))
+				curKeywidth = attr.value("keywidth").toDouble();
+			if (attr.hasAttribute("keyheight"))
+				curKeyheight = attr.value("keyheight").toDouble();
+			if (attr.hasAttribute("margin"))
+				curMargin = attr.value("margin").toDouble();
 			QGraphicsItemGroup * group = new QGraphicsItemGroup();
 			scene->addItem(group);
 			//if (parent != nullptr)
 			//	parent->addToGroup(group);
 			item = group;  //TODO clean up unneccessary variables
-			drawGroup (reader, group, keywidth, keyheight, reader.name() == "row");
+			drawGroup (reader, group, curKeywidth, curKeyheight, curMargin);
 			resultItem = item;
 			groups[id] = (QGraphicsItemGroup*) item;
 			groupX = x;
 			groupY = y;
-			margin = 0.0;
+			curMargin = 0.0;
 		}
 		else if (reader.name() == "key")
 		{
@@ -169,7 +198,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 			}
 			else
 			{
-				double_t w = keywidth, h = keyheight;
+				double_t w = curKeywidth, h = curKeyheight;
 				if (attr.hasAttribute("w"))
 					w = attr.value("w").toDouble();
 				if (attr.hasAttribute("h"))
@@ -198,14 +227,23 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 				corner = "ne";
 			else
 				corner = attr.value("corner").toString();
-			QRectF bRect = lastItem->mapRectToParent(lastItem->boundingRect() | lastItem->childrenBoundingRect());
+			QRectF bRect;
+			if (lastItem->type() == QGraphicsKeyItem::Type)
+				bRect = lastItem->mapRectToParent(
+					qgraphicsitem_cast<QGraphicsKeyItem*>(lastItem)->placementRect());
+			else {
+				bRect = lastItem->mapRectToParent(lastItem->boundingRect()
+						| lastItem->childrenBoundingRect());
+				qreal rMargin = 0.5; //Rect.left() * -1.0;
+				bRect = bRect.marginsRemoved(QMarginsF(rMargin, rMargin, rMargin, rMargin));
+			}
 			
 			if (corner == "ne")
-				p = bRect.topRight();
+				p = bRect.topRight() + QPointF(margin, 0.0);
 			else if (corner == "sw")
-				p = bRect.bottomLeft();
+				p = bRect.bottomLeft() + QPointF(0.0, margin);
 			else if (corner == "se")
-				p = bRect.bottomRight();
+				p = bRect.bottomRight() + QPointF(margin, margin);
 			else if (corner == "nw")
 				p = bRect.topLeft();
 			else
@@ -213,7 +251,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		}
 		
 		
-		item->moveBy(groupX + x + p.x() + margin, groupY + y + p.y() + margin);
+		item->moveBy(groupX + x + p.x(), groupY + y + p.y());
 		//item->moveBy(groupX + x + p.x() + 1, groupY + y + p.y() + 1);
 		//item->moveBy(groupX + x + p.x() , groupY + y + p.y());
 		lastItem = item;
@@ -267,6 +305,8 @@ void KbdDisplay::resizeEvent(QResizeEvent* event)
     QWidget::resizeEvent(event);
 }
 
+
+// TODO do i need this function???
 void KbdDisplay::keyChanged(KeyItem* item)
 {
 	foreach(QGraphicsItem* it, keys.values(item->keyId))
@@ -274,14 +314,6 @@ void KbdDisplay::keyChanged(KeyItem* item)
 		if (it->type() == QGraphicsKeyItem::Type)
 			((QGraphicsKeyItem*)it)->updateContent();
 		it->update();
-		continue;
-		/*QGraphicsTextItem *t = (QGraphicsTextItem*)it->childItems().at(0);
-		t->setPlainText(item->labelTop);
-		QGraphicsRectItem *r = (QGraphicsRectItem*)it;
-		QBrush brush;
-		brush.setColor(model->getColor(item->styleTop, Qt::BackgroundRole));
-		r->setBrush(brush);
-		*/
 	}
 }
 

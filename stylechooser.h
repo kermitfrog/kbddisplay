@@ -47,6 +47,7 @@ public:
 	QListWidgetItem* addStyle(Style *style);
 	QListWidgetItem* findItem(QString name);
     bool isValidItem(QListWidgetItem* item);
+	QSize drawRect() {return viewportSizeHint();};
 public slots:
 	void updateStyles(StyleModel::ChangeType type, Style* style);
 	void setCurrentText(QString text);

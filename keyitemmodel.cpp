@@ -28,6 +28,8 @@
 KeyItemModel::KeyItemModel()
 {
 	//loadCodeToIdMap();
+	connect (StyleModel::model, SIGNAL(stylesChanged(StyleModel::ChangeType,Style*)),
+			 SLOT(updateAllItems()));
 }
 
 KeyItemModel::~KeyItemModel()
@@ -37,14 +39,25 @@ KeyItemModel::~KeyItemModel()
 
 void KeyItemModel::setKeys(QMultiMap<QString,QGraphicsItem*> keymap)
 {
+	// clean up
+	foreach (KeyItem * key, items) {
+		// FIXME i think, there is a memory leak --> investigate
+		//foreach (QGraphicsKeyItem * item, key->graphicItems)
+		//	qDebug() << item->getKey();
+		key->graphicItems.clear();
+	}
+	
 	QMap<QString, int> ctiMap = loadCodeToIdMap();
-	// FIXME :: each item is assigned (num of mappings) times to each mapping
-	foreach (QString s, keymap.keys()) {
+	codeToKeyItemMap.clear();
+	foreach (QString s, keymap.uniqueKeys()) {
+		KeyItem *item;
 		if (sortedItems.contains(s))
-			continue;
-		KeyItem *item = new KeyItem(s);
-		sortedItems[s] = item;
-		items.append(item);
+			item = sortedItems[s];
+		else {
+			item = new KeyItem(s);
+			sortedItems[s] = item;
+			items.append(item);
+		}
 		foreach (QGraphicsItem *gi, keymap.values(s))
 		{
 			if (gi->type() == QGraphicsKeyItem::Type)
@@ -53,8 +66,6 @@ void KeyItemModel::setKeys(QMultiMap<QString,QGraphicsItem*> keymap)
 		}
 		codeToKeyItemMap[ctiMap[item->keyId]] = item;
 	}
-	connect (StyleModel::model, SIGNAL(stylesChanged(StyleModel::ChangeType,Style*)),
-			 SLOT(updateAllItems()));
 }
 
 int KeyItemModel::columnCount(const QModelIndex& parent) const
@@ -178,7 +189,12 @@ void KeyItem::setStyle(QString style, int index)
 void KeyItem::updateItems()
 {
 	foreach(QGraphicsKeyItem* it, graphicItems)
-		it->updateContent();
+	{
+		if (it->getKey() == this)
+			it->updateContent();
+		else
+			qDebug() << "Bah!";
+	}
 }
 
 void KeyItemModel::save(QString filename)

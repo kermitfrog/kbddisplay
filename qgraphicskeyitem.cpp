@@ -179,6 +179,7 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 
 void QGraphicsKeyItem::updateContent()
 {
+	
 	upperBrush.setColor(StyleModel::model->getColor(key->style[0], Qt::BackgroundRole));
 	upperBrush.setStyle(Qt::SolidPattern);
 	lowerBrush.setColor(StyleModel::model->getColor(key->style[1], Qt::BackgroundRole));
@@ -205,6 +206,12 @@ int QGraphicsKeyItem::getPartIndex(QPointF pos)
 	return 1;
 }
 
+QRectF QGraphicsKeyItem::placementRect()
+{
+	//qDebug() << boundingRect() << " vs. " << boundingRect().marginsRemoved(margins);
+	
+	return boundingRect().marginsRemoved(margins);
+}
 
 
 

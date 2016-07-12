@@ -45,6 +45,7 @@ public:
 	void setStyle(QString style, int index = 0);
 	void updateContent();
 	KeyItem *getKey() {return key;};
+	QRectF placementRect();
 	
 protected:
 	void commonInit();
@@ -56,6 +57,7 @@ protected:
 	KeyItem *key = nullptr;
 	QModelIndex data;
 	
+	const QMarginsF margins = QMarginsF(0.5, 0.5, 0.5, 0.5);
 };
 
 #endif // QGRAPHICSKEYITEM_H

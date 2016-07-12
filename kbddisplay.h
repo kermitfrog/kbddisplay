@@ -16,7 +16,6 @@ Q_OBJECT
 public:
 	KbdDisplay();
 	virtual ~KbdDisplay();
-    void loadKbd(QString filename);
     void printItemTree(QGraphicsItem * root = nullptr, int level = 0);
 	
 public slots:
@@ -25,6 +24,7 @@ public slots:
 	void save();
 	void saveAs();
 	void exportSVG();
+    void loadKbd(QString filename);
 
 protected:	
 	virtual void resizeEvent(QResizeEvent * event);
@@ -32,11 +32,13 @@ protected:
 	KeyboardView *view;
 	QGraphicsScene *scene;
 	KeyItemModel *model;
+	QComboBox *keyboardsComboBox;
 	QMultiMap<QString,QGraphicsItem*> keys;
 	QMap<QString,QGraphicsItemGroup*> groups;
 	QGraphicsItem * drawGroup(QXmlStreamReader &reader, QGraphicsItemGroup * parent,
-		double keywidth, double keyheight, bool row = false);
+		double keywidth, double keyheight, double margin);
     QGraphicsItem* getItem(QString value);
+    void setUpToolbar();
 	QString filename;
 	
 

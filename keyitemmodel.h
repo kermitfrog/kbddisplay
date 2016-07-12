@@ -24,6 +24,7 @@
 #include <QModelIndex>
 #include <QBrush>
 #include <QList>
+#include <QDebug>
 #include "qgraphicskeyitem.h"
 #include "style.h"
 #include "stylemodel.h"
@@ -49,6 +50,10 @@ public:
 	
 	QMap< int, KeyItem* > codeToKeyItemMap;
 	bool load(QString filename);
+	void checkKey(KeyItem *key) {
+		qDebug() << key;
+		qDebug() << items.indexOf(key);
+	};
 	
 signals:
 	void keyChanged(KeyItem*);

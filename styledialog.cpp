@@ -102,6 +102,8 @@ void StyleDialog::changeSize(double size)
 	QFont itFont = style.font;
 	itFont.setPointSizeF(style.font.pointSizeF() * scale);
 	it->setFont(itFont);
+	QGraphicsScene *scene = ui->preView->scene();
+	scene->setSceneRect(scene->itemsBoundingRect());
 }
 
 void StyleDialog::changeName(QString name)

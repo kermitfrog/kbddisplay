@@ -38,24 +38,36 @@ void KeyStyleDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 
     // if Selected...
     if (option.state & QStyle::State_Selected)
-        margin = 1;
+	    margin = 1;
 
     painter->setBrush(brush);
 
     // Background
-    painter->drawRect(margin,margin + index.row()*HEIGHT,
-                      ((StyleChooser*)parent())->width() - 2*margin,HEIGHT - margin*2);
+    painter->drawRect(option.rect.x() + margin,
+					  option.rect.y() + margin,
+                      option.rect.width() - 2*margin,
+					  option.rect.height() - 2*margin);
     // Text
     pen.setStyle(Qt::SolidLine);
 	painter->setFont(font);
-    painter->drawText(10,index.row()*HEIGHT + 18, index.data().toString());
+    painter->drawText(option.rect.x() + 10,
+					  option.rect.y() + 18,
+					  index.data().toString());
+	
+	/*QString rtl = "\u200F١٤:٥٠:١٣";
+	qDebug() << rtl.isRightToLeft();
+    painter->drawText(option.rect.x() + 10,
+					  option.rect.y() + 18,
+					  rtl);*/
+	
 
     painter->restore();
 }
 
 QSize KeyStyleDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    return QSize(((StyleChooser*)parent())->width(), HEIGHT);
+    //return QSize(((StyleChooser*)parent())->width(), HEIGHT);
+    return QSize(((StyleChooser*)parent())->drawRect().width(), HEIGHT);
 }
 
 StyleChooser::StyleChooser(QWidget* parent) : QListWidget(parent)

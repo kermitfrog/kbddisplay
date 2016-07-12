@@ -83,7 +83,6 @@ void StyleModel::addStyle(Style* style)
 	stylesByPointer[style] = style->name;
 	if (!surpressSignals)
 		emit stylesChanged(StyleModel::New, style);
-	qDebug() << "Model::add " << style->toString();
 }
 
 
@@ -194,7 +193,6 @@ bool StyleModel::loadStyles(QXmlStreamReader& reader)
 		addStyle(style);
 	}
 	surpressSignals = false;
-	qDebug() << "ok";
 	emit stylesChanged(All, nullptr);
 }
 
