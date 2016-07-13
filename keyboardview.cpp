@@ -166,6 +166,18 @@ void KeyboardView::exportSVG(QString filename)
 	scene()->render( &painter );
 }
 
+void KeyboardView::print(QPrinter& printer)
+{
+	QRect rect = scene()->sceneRect().toRect();
+	const double_t scale = 3.0;
+	rect.setRect(rect.x() * scale, rect.y() * scale,
+				 rect.width() * scale, rect.height() * scale);
+	
+	QPainter painter( &printer );
+	scene()->render( &painter );
+}
+
+
 void KeyboardView::resizeEvent(QResizeEvent* event)
 {
     QGraphicsView::resizeEvent(event);

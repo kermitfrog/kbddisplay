@@ -24,6 +24,7 @@ public slots:
 	void save();
 	void saveAs();
 	void exportSVG();
+	void print();
     void loadKbd(QString filename);
 
 protected:	

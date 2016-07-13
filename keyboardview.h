@@ -21,6 +21,7 @@
 #define KEYBOARDVIEW_H
 
 #include <QtWidgets/QGraphicsView>
+#include <QPrinter>
 #include "stylechooser.h"
 #include "keyitemmodel.h"
 #include "keydialog.h"
@@ -35,6 +36,7 @@ public:
 public slots:
 	void setStyle(QListWidgetItem* item);
 	void exportSVG(QString filename);
+	void print(QPrinter &printer);
 	void autoMap();
 	void diffAutoMap();
 	//void updateItem(KeyItem* key);

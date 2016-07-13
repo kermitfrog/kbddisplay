@@ -43,6 +43,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="actionExport_to_SVG"/>
+    <addaction name="actionPrint"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -123,6 +124,11 @@
   <action name="actionLayout_diff">
    <property name="text">
     <string>Auto in &amp;diff mode</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="text">
+    <string>&amp;Print</string>
    </property>
   </action>
  </widget>

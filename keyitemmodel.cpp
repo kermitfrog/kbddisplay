@@ -284,7 +284,7 @@ bool KeyItemModel::load(QString filename)
 					continue;
 				
 				attr = reader.attributes();
-				KeyItem *key = sortedItems[attr.value("id").toString()];
+				KeyItem *key = getKey(attr.value("id").toString());
 				key->labelTop = attr.value("mainlabel").toString();
 				key->labelBottom = attr.value("secondlabel").toString();
 				key->style[0] = attr.value("mainstyle").toString();
@@ -296,6 +296,17 @@ bool KeyItemModel::load(QString filename)
 	}
 	f.close();
 	return true;
+}
+
+KeyItem* KeyItemModel::getKey(QString id)
+{
+	KeyItem *key = sortedItems.value(id);
+	if (key == nullptr) {
+		key = new KeyItem(id);
+		sortedItems[id] = key;
+		items.append(key);
+	}
+	return key;
 }
 
 void KeyItemModel::updateAllItems()

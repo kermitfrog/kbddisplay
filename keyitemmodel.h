@@ -54,6 +54,8 @@ public:
 		qDebug() << key;
 		qDebug() << items.indexOf(key);
 	};
+    KeyItem *getKey(QString id);
+	
 	
 signals:
 	void keyChanged(KeyItem*);

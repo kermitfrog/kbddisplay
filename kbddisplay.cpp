@@ -10,6 +10,8 @@
 #include <QXmlStreamReader>
 #include <QString>
 #include <QFileDialog>
+#include <QPrintDialog>
+#include <QPrinter>
 
 /*!
  * @brief Constructor of the main window. 
@@ -44,6 +46,7 @@ KbdDisplay::KbdDisplay()
 	connect(ui->actionLayout_diff, SIGNAL(triggered(bool)), ui->graphicsView, SLOT(diffAutoMap()));
 	connect(ui->action_Save_as_Default, SIGNAL(triggered(bool)), 
 		StyleModel::model, SLOT(saveDefaultStyles()));
+	connect(ui->actionPrint, SIGNAL(triggered(bool)), SLOT(print()));
 	
 	
 	scene = new QGraphicsScene();
@@ -61,6 +64,8 @@ KbdDisplay::KbdDisplay()
 	loadKbd("default.xml");
 	// Mainwindows size. For some reason has to be at the end of the constructor.
 	//setGeometry(settings.value("MainWindowGeometry", QRect(800,0,1200,600)).toRect());
+	//ui->tableView->resize(600, ui->tableView->height());
+	ui->tableView->hide();
 }
 
 /*!
@@ -326,6 +331,16 @@ void KbdDisplay::exportSVG()
 		QDir::currentPath(), tr("SVG file (*.svg)")
 	);
 	ui->graphicsView->exportSVG(svgFile);
+}
+
+void KbdDisplay::print()
+{
+	QPrinter printer(QPrinter::HighResolution);
+	printer.setOrientation(QPrinter::Landscape);
+	QPrintDialog printDialog(&printer);
+	if (printDialog.exec() == QDialog::Accepted) {
+		ui->graphicsView->print(printer);
+	}
 }
 
 void KbdDisplay::open()
