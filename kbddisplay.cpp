@@ -106,6 +106,8 @@ void KbdDisplay::loadKbd(QString filename)
 	f.close();
 	model->setKeys(keys);
 	scene->setSceneRect(scene->itemsBoundingRect());
+	qDebug() << "scene->itemsBoundingRect :" << scene->itemsBoundingRect();
+	
 	//FIXME next line crashes the programm ... why????
 	//view->fitInView(scene->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
@@ -171,6 +173,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 			groupX = x;
 			groupY = y;
 			curMargin = 0.0;
+			qDebug() << id << ": " << group->childrenBoundingRect();
 		}
 		else if (reader.name() == "key")
 		{
@@ -203,7 +206,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 					w = attr.value("w").toDouble();
 				if (attr.hasAttribute("h"))
 					h = attr.value("h").toDouble();
-				item = new QGraphicsKeyItem(QRect(0.0, 0.0, w, h));
+				item = new QGraphicsKeyItem(QRectF(0.0, 0.0, w, h));
 			}
 			scene->addItem(item);
 			keys.insert(id, item);

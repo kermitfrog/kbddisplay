@@ -72,6 +72,7 @@ protected:
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 	QMap<QString, int> loadCodeToIdMap();
+	QMap<QString, int> loadCodeToIdMapXML();
 	
 	QList<KeyItem*> items;
 	QMap<QString, KeyItem*> sortedItems;

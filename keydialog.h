@@ -20,7 +20,7 @@
 #ifndef KEYDIALOG_H
 #define KEYDIALOG_H
 
-#include <qt5/QtWidgets/qdialog.h>
+#include <QtWidgets/qdialog.h>
 #include <ui_keydialog.h>
 #include "keyitemmodel.h"
 #include "styledialog.h"

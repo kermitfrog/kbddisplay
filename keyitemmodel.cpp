@@ -24,6 +24,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttributes>
+#include <QGuiApplication>
 
 KeyItemModel::KeyItemModel()
 {
@@ -150,7 +151,35 @@ KeyItem* KeyItemModel::key(const QModelIndex& index) const
 	return nullptr;//TODO implement??
 }
 
-QMap<QString, int> KeyItemModel::loadCodeToIdMap()
+QMap< QString, int > KeyItemModel::loadCodeToIdMap()
+{
+	QMap<QString, int> codeToIdMap;
+	
+	QFile f(QDir::currentPath() + "/keymapping.csv");
+	if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "could not open mapping File for reading";
+		return codeToIdMap;
+	}
+	int idIndex, codeIndex = -1;
+	QTextStream csvStream(&f);
+	QStringList csvLine;
+	csvLine = csvStream.readLine().split("\t");
+	idIndex = csvLine.indexOf("xkb");
+	codeIndex = csvLine.indexOf(QGuiApplication::platformName());
+	qDebug() << idIndex << " " << codeIndex;
+	
+	while (!csvStream.atEnd()) {
+		csvLine = csvStream.readLine().split("\t");
+		if (csvLine.length() < qMax<int>(idIndex, codeIndex))
+			continue;
+		codeToIdMap[csvLine[idIndex]] = csvLine[codeIndex].toInt();
+	}
+	qDebug() << codeToIdMap.count();
+	return codeToIdMap;
+}
+
+QMap<QString, int> KeyItemModel::loadCodeToIdMapXML()
 {
 	QMap<QString, int> codeToIdMap;
 	
@@ -193,7 +222,7 @@ void KeyItem::updateItems()
 		if (it->getKey() == this)
 			it->updateContent();
 		else
-			qDebug() << "Bah!";
+			qDebug() << "Bah! This should not happen! ( KeyItem::updateItems() )";
 	}
 }
 

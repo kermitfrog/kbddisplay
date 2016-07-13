@@ -71,8 +71,7 @@ int StyleDialog::exec(Style *styleToEdit, bool edit)
 	bgDialog->setCurrentColor(style.bg.color());
 	ui->fontComboBox->setCurrentFont(style.font);
 	ui->fontSizeSpinBox->setValue(style.font.pointSizeF());
-	QDialog::exec();
-	qDebug() << style.toString();
+	return QDialog::exec();
 }
 
 void StyleDialog::changeBG(QColor color)
