@@ -102,10 +102,16 @@ QColor StyleModel::getColor(QString name, int role)
 {
 	if (name == "")
 		return getColor("default", role);
+	if (!styles.contains(name)) {
+		qDebug() << "no style named " << name;
+		return QColor();
+	}
 	if (role == Qt::ForegroundRole)
 		return styles[name]->fg.color();
-	else
+	else if (role == Qt::BackgroundRole)
 		return styles[name]->bg.color();
+	else 
+		qDebug() << "WTF???";
 }
 
 void StyleModel::deleteStyle(Style* style)
@@ -131,8 +137,7 @@ void StyleModel::deleteStyle(QString style)
 
 bool StyleModel::styleChangedOk(Style* style)
 {
-	qDebug() << style->toString();
-	if (styles[style->name] == style) {
+	if (styles.value(style->name) == style) {
 		if (!surpressSignals)
 			emit stylesChanged(StyleModel::Edit, style);
 		return true;
@@ -145,7 +150,7 @@ bool StyleModel::styleChangedOk(Style* style)
 	
 	QString name = stylesByPointer.take(style);
 	styles.remove(name);
-	styles[name] = style;
+	styles[style->name] = style;
 	stylesByPointer[style] = name;
 	if (!surpressSignals)
 		emit stylesChanged(StyleModel::Name, style);
