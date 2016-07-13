@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keyboard name="Kinesis Freestyle 2" keywidth="18" keyheight="18" margin="1.5">
+<group id='left'>
+	<key id="ESC" x="0" y="0" w='37'/>
+	<group id='extra' x="0" y="2" relativeTo="ESC" corner='sw'>
+		<key id='LALT+LEFT'/>
+		<key id='LALT+RGHT' relativeTo='LALT+LEFT' corner='ne'/>
+		<key id='LCTL+AB01' relativeTo='LALT+LEFT' corner='sw'/>
+		<key id='LALT+HOME' relativeTo='LCTL+AB01' corner='ne'/>
+		<key id='LCTL+AB02' relativeTo='LCTL+AB01' corner='sw'/>
+		<key id='DEL'       relativeTo='LCTL+AB02' corner='ne'/>
+		<key id='LCTL+AB03' relativeTo='LCTL+AB02' corner='sw'/>
+		<key id='LCTL+AB04' relativeTo='LCTL+AB03' corner='ne'/>
+		<key id='FN'        relativeTo='LCTL+AB03' corner='sw'/>
+		<key id='MENU'      relativeTo='FN'        corner='ne'/>
+	</group>
+	<row id="f1_7" x="2" y="0" relativeTo="ESC" corner='ne'>
+		<key id='FK01'/>
+		<key id='FK02'/>
+		<key id='FK03'/>
+		<key id='FK04'/>
+		<key id='FK05'/>
+		<key id='FK06'/>
+		<key id='FK07'/>
+	</row>
+	<row id="L1" x="0" y="2" relativeTo="f1_7" corner='sw'>
+		<key id='TLDE'/>
+		<key id='AE01'/>
+		<key id='AE02'/>
+		<key id='AE03'/>
+		<key id='AE04'/>
+		<key id='AE05'/>
+		<key id='AE06'/>
+	</row>
+	<row id="L2" x="0" y="0" relativeTo="L1" corner='sw'>
+		<key id='TAB' w='29'/>
+		<key id='AD01'/>
+		<key id='AD02'/>
+		<key id='AD03'/>
+		<key id='AD04'/>
+		<key id='AD05'/>
+	</row>
+	<row id="L3" x="0" y="0" relativeTo="L2" corner='sw'>
+		<key id='CAPS' w='26'/>
+		<key id='AC01' x='7'/>
+		<key id='AC02'/>
+		<key id='AC03'/>
+		<key id='AC04'/>
+		<key id='AC05'/>
+	</row>
+	<row id="L4" x="0" y="0" relativeTo="L3" corner='sw'>
+		<key id='LFSH' w='20'/>
+		<key id='LSGT'/>
+		<key id='AB01'/>
+		<key id='AB02'/>
+		<key id='AB03'/>
+		<key id='AB04'/>
+		<key id='AB05'/>
+	</row>
+	<row id="L5" x="0" y="0" relativeTo="L4" corner='sw'>
+		<key id='LCTL' w='28'/>
+		<key id='LWIN' />
+		<key id='LALT' w='23'/>
+		<key id='SPCE' w='66'/>
+	</row>
+</group>
+
+<group id='right' relativeTo='left' x='5' corner='ne'>
+	<row id="f8_PAUS" x="5" y="0" >
+		<key id='FK08'/>
+		<key id='FK09'/>
+		<key id='FK10'/>
+		<key id='FK11'/>
+		<key id='FK12'/>
+		<key id='PRSC'/>
+		<key id='DEL' w='37'/>
+		<key id='PAUS'/>
+	</row>
+	<row id="R1" x="0" y="2" relativeTo="f8_PAUS" corner='sw'>
+		<key id='AE07'/>
+		<key id='AE08'/>
+		<key id='AE09'/>
+		<key id='AE10'/>
+		<key id='AE11'/>
+		<key id='AE12'/>
+		<key id='BKSP' w='37'/>
+		<key id='HOME'/>
+	</row>
+	<row id="R2" x="-5" y="0" relativeTo="R1" corner='sw'>
+		<key id='AD06'/>
+		<key id='AD07'/>
+		<key id='AD08'/>
+		<key id='AD09'/>
+		<key id='AD10'/>
+		<key id='AD11'/>
+		<key id='AD12'/>
+	</row>
+	<group id='RETURN' x='0.25' relativeTo='R2' corner='ne'>
+		<key id='RTRN' polygon='0,0 27,0 27,37.5 4,37.5 4,18 0,18' />
+		<key id='END'/>
+		<key id='PGUP' relativeTo='END' corner='sw'/>
+	</group>
+	<row id="R3" x="2" y="0" relativeTo="R2" corner='sw'>
+		<key id='AC06'/>
+		<key id='AC07'/>
+		<key id='AC08'/>
+		<key id='AC09'/>
+		<key id='AC10'/>
+		<key id='AC11'/>
+		<key id='BKSL'/>
+	</row>
+	<row id="R4" x="5" y="0" relativeTo="R3" corner='sw'>
+		<key id='AB06'/>
+		<key id='AB07'/>
+		<key id='AB08'/>
+		<key id='AB09'/>
+		<key id='AB10'/>
+		<key id='RTSH' w='26'/>
+		<key id='UP' x='7'/>
+		<key id='PGDN'/>
+	</row>
+	<row id="R5" x="-6.5" y="0" relativeTo="R4" corner='sw'>
+		<key id='SPCE' w='66'/>
+		<key id='RALT' w='23'/>
+		<key id='RCTL' w='27'/>
+		<key id='LEFT' x='5'/>
+		<key id='DOWN'/>
+		<key id='RGHT'/>
+	</row>
+</group>
+</keyboard>
