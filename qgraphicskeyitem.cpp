@@ -192,6 +192,8 @@ void QGraphicsKeyItem::updateContent()
 	}
 	else
 	{
+		if (textItems[1] != nullptr && !textItems[1]->toPlainText().isEmpty())
+			textItems[1]->setPlainText("");
 		paintText(key->labelTop, polygon());
 	}
 	update();
