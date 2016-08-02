@@ -23,6 +23,7 @@
 #include <QGraphicsPolygonItem>
 #include <QBrush>
 #include "keyitemmodel.h"
+#include "global.h"
 
 class KeyItemModel;
 class KeyItem;
@@ -51,13 +52,19 @@ protected:
 	void commonInit();
 	void paintText(QString text, QPolygonF polygon, int index = 0);
 	QPolygonF upperPolygon, lowerPolygon;
+	QLineF middleLine;
 	QBrush upperBrush, lowerBrush;
 	QGraphicsTextItem *textItems[2];
 	
 	KeyItem *key = nullptr;
 	QModelIndex data;
+	static QPen middlePen;
+	static bool globalSetupMade;
 	
-	const QMarginsF margins = QMarginsF(0.5, 0.5, 0.5, 0.5);
+	
+	const double penWidth = SIZEFACTOR / 2.0;
+	const QMarginsF margins = QMarginsF(penWidth/2.0, penWidth/2.0,
+										penWidth/2.0, penWidth/2.0);
 };
 
 #endif // QGRAPHICSKEYITEM_H

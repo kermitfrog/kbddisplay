@@ -6,6 +6,8 @@
 #include "keyitemmodel.h"
 #include "qgraphicskeyitem.h"
 #include "keyboardview.h"
+#include "global.h"
+
 
 /*!
  * @brief Applications main window.

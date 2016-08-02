@@ -27,6 +27,7 @@
 #include "style.h"
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include "global.h"
 
 class StyleModel : public QObject
 {

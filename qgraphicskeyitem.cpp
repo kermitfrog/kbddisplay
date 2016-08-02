@@ -24,7 +24,8 @@
 #include <QTextDocument>
 #include "stylechooser.h"
 
-
+bool QGraphicsKeyItem::globalSetupMade = false;
+QPen QGraphicsKeyItem::middlePen;
 
 QGraphicsKeyItem::QGraphicsKeyItem(QGraphicsItem* parent) : QGraphicsPolygonItem(parent)
 {
@@ -33,6 +34,10 @@ QGraphicsKeyItem::QGraphicsKeyItem(QGraphicsItem* parent) : QGraphicsPolygonItem
 
 void QGraphicsKeyItem::commonInit()
 {
+	if (!globalSetupMade) {
+		middlePen.setWidthF(SIZEFACTOR / 5.0);
+		globalSetupMade = true;
+	}
 	upperPolygon.clear();
 	lowerPolygon.clear();
 	
@@ -42,8 +47,10 @@ void QGraphicsKeyItem::commonInit()
 	if (polygon().size() < 3)
 		return;
 	
-	qreal middle = boundingRect().height() / 2.0 -0.5; // TODO - PenWidth/2 ???
+	qreal middle = boundingRect().height() / 2.0 - penWidth/2.0; // TODO - PenWidth/2 ???
 	bool lastIsUp = polygon().first().y() < middle;
+	double middleX[2];
+	int middleXId = 0;
 	foreach (QPointF p, polygon())
 	{
 		if (p.y() < middle)
@@ -52,6 +59,8 @@ void QGraphicsKeyItem::commonInit()
 				upperPolygon.append(p);
 			else
 			{
+				if (middleXId < 2)
+					middleX[middleXId++] = p.x();
 				upperPolygon.append(QPointF(p.x(), middle));
 				lowerPolygon.append(QPointF(p.x(), middle));
 				upperPolygon.append(p);
@@ -64,6 +73,8 @@ void QGraphicsKeyItem::commonInit()
 				lowerPolygon.append(p);
 			else
 			{
+				if (middleXId < 2)
+					middleX[middleXId++] = p.x();
 				upperPolygon.append(QPointF(p.x(), middle));
 				lowerPolygon.append(QPointF(p.x(), middle));
 				lowerPolygon.append(p);
@@ -71,6 +82,13 @@ void QGraphicsKeyItem::commonInit()
 			}
 		}
 	}
+	
+	middleLine.setLine(middleX[0], middle, middleX[1], middle);
+	
+	QPen pen;
+	pen.setCosmetic(true);
+	pen.setWidthF(SIZEFACTOR / 2.0);
+	setPen(pen);
 }
 
 void QGraphicsKeyItem::setKey(KeyItem* key)
@@ -132,7 +150,11 @@ void QGraphicsKeyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
 		painter->drawPolygon(polygon());
 	}
 	
-	painter->setPen(QPen());
+	if (!key->labelTop.isEmpty() && !key->labelBottom.isEmpty()) {
+		painter->setPen(middlePen);
+		painter->drawLine(middleLine);
+	}
+	
 	
 	QGraphicsPolygonItem::paint(painter, option, widget);
 }
@@ -143,14 +165,14 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 	if (key->style[index] == "")
 		return;
 	
-	const double TEXTMARGIN = 0.5;
+	const double TEXTMARGIN = 0.5 * SIZEFACTOR;
 	QGraphicsTextItem * item = textItems[index];
 	if (item == nullptr) {
 		item = (QGraphicsTextItem*)scene()->addText(text);
 		item->setParentItem(this);
 		textItems[index] = item;
 		item->document()->setDocumentMargin(TEXTMARGIN);
-		item->setTextWidth(boundingRect().width()-1.0);
+		item->setTextWidth(boundingRect().width()-SIZEFACTOR/2.0);
 		item->document()->setDefaultTextOption(
 			QTextOption(Qt::AlignCenter|Qt::AlignBottom));
 		if (index == 1)
@@ -165,14 +187,14 @@ void QGraphicsKeyItem::paintText(QString text, QPolygonF polygon, int index)
 	QFont font = StyleModel::model->getFont(key->style[index]);
 	qreal size = font.pointSizeF();
 	item->setFont(font);
-	while (size > 0.25 && !polygon.boundingRect().contains(
+	while (size > 5.0 && !polygon.boundingRect().contains(
 		item->mapRectToParent(item->boundingRect())))
 	{
 		size -= 0.25;
 		font.setPointSizeF(size);
 		item->setFont(font);
 	}
-	//qDebug() << "bla: " << size << ", " << polygon.boundingRect() << " --- " << item->boundingRect();
+	qDebug() << "bla: " << size << ", " << polygon.boundingRect() << " --- " << item->boundingRect();
 	//item->moveBy(0.0, 7.0);
 	//item->moveBy(0.0, (polygon.boundingRect().height() - item->boundingRect().height()) / 2.0);
 }

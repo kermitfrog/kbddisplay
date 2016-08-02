@@ -13,6 +13,8 @@
 #include <QPrintDialog>
 #include <QPrinter>
 
+//const double KbdDisplay::SIZEFACTOR = 10.0;
+
 /*!
  * @brief Constructor of the main window. 
  * Here starts the interesting part of the application.
@@ -139,9 +141,9 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		double curKeyheight = keyheight, curKeywidth = keywidth, curMargin = margin;
 		attr = reader.attributes();
 		if (attr.hasAttribute("x"))
-			x = attr.value("x").toDouble();
+			x = SIZEFACTOR * attr.value("x").toDouble();
 		if (attr.hasAttribute("y"))
-			y = attr.value("y").toDouble();
+			y = SIZEFACTOR * attr.value("y").toDouble();
 		if (attr.hasAttribute("id"))
 			id = attr.value("id").toString();
 		
@@ -150,11 +152,11 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 		{
 			id = attr.value("name").toString();
 			if (attr.hasAttribute("keywidth"))
-				keywidth = attr.value("keywidth").toDouble();
+				keywidth = SIZEFACTOR * attr.value("keywidth").toDouble();
 			if (attr.hasAttribute("keyheight"))
-				keyheight = attr.value("keyheight").toDouble();
+				keyheight = SIZEFACTOR * attr.value("keyheight").toDouble();
 			if (attr.hasAttribute("margin"))
-				margin = attr.value("margin").toDouble();
+				margin = SIZEFACTOR * attr.value("margin").toDouble();
 			continue;
 		}
 		else if (reader.name() == "group" || reader.name() == "row")
@@ -162,11 +164,11 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 			if (reader.isEndElement())
 				return resultItem;
 			if (attr.hasAttribute("keywidth"))
-				curKeywidth = attr.value("keywidth").toDouble();
+				curKeywidth = SIZEFACTOR * attr.value("keywidth").toDouble();
 			if (attr.hasAttribute("keyheight"))
-				curKeyheight = attr.value("keyheight").toDouble();
+				curKeyheight = SIZEFACTOR * attr.value("keyheight").toDouble();
 			if (attr.hasAttribute("margin"))
-				curMargin = attr.value("margin").toDouble();
+				curMargin = SIZEFACTOR * attr.value("margin").toDouble();
 			QGraphicsItemGroup * group = new QGraphicsItemGroup();
 			scene->addItem(group);
 			//if (parent != nullptr)
@@ -195,22 +197,23 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 						qDebug() << "Invalid point in " << points;
 						continue;
 					}
-					polygon.append(QPointF(plist[0].toDouble(), plist[1].toDouble()));
+					polygon.append(QPointF(SIZEFACTOR * plist[0].toDouble(),
+										   SIZEFACTOR * plist[1].toDouble()));
 				}
 				item = new QGraphicsKeyItem(polygon);
 			}
 			else if (attr.hasAttribute("d"))
 			{
-				qreal diameter = attr.value("d").toDouble();
+				qreal diameter = SIZEFACTOR * attr.value("d").toDouble();
 				item = new QGraphicsKeyItem(diameter);
 			}
 			else
 			{
 				double_t w = curKeywidth, h = curKeyheight;
 				if (attr.hasAttribute("w"))
-					w = attr.value("w").toDouble();
+					w = SIZEFACTOR * attr.value("w").toDouble();
 				if (attr.hasAttribute("h"))
-					h = attr.value("h").toDouble();
+					h = SIZEFACTOR * attr.value("h").toDouble();
 				item = new QGraphicsKeyItem(QRectF(0.0, 0.0, w, h));
 			}
 			scene->addItem(item);
@@ -242,7 +245,7 @@ QGraphicsItem* KbdDisplay::drawGroup(QXmlStreamReader &reader, QGraphicsItemGrou
 			else {
 				bRect = lastItem->mapRectToParent(lastItem->boundingRect()
 						| lastItem->childrenBoundingRect());
-				qreal rMargin = 0.5; //Rect.left() * -1.0;
+				qreal rMargin = SIZEFACTOR / 4.0;
 				bRect = bRect.marginsRemoved(QMarginsF(rMargin, rMargin, rMargin, rMargin));
 			}
 			

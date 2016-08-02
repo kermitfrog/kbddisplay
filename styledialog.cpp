@@ -19,6 +19,7 @@
 
 #include "styledialog.h"
 #include <QDebug>
+#include "global.h"
 
 StyleDialog::StyleDialog()
 {
@@ -70,7 +71,7 @@ int StyleDialog::exec(Style *styleToEdit, bool edit)
 	fgDialog->setCurrentColor(style.fg.color());
 	bgDialog->setCurrentColor(style.bg.color());
 	ui->fontComboBox->setCurrentFont(style.font);
-	ui->fontSizeSpinBox->setValue(style.font.pointSizeF());
+	ui->fontSizeSpinBox->setValue(style.font.pointSizeF() / SIZEFACTOR);
 	return QDialog::exec();
 }
 
@@ -88,7 +89,7 @@ void StyleDialog::changeFG(QColor color)
 
 void StyleDialog::changFont(QFont font)
 {
-	font.setPointSizeF(ui->fontSizeSpinBox->value());
+	font.setPointSizeF(ui->fontSizeSpinBox->value() * SIZEFACTOR);
 	style.font = font;
 	QFont itFont = font;
 	itFont.setPointSizeF(font.pointSizeF() * scale);
@@ -97,6 +98,7 @@ void StyleDialog::changFont(QFont font)
 
 void StyleDialog::changeSize(double size)
 {
+	size *= SIZEFACTOR;
 	style.font.setPointSizeF(size);
 	QFont itFont = style.font;
 	itFont.setPointSizeF(style.font.pointSizeF() * scale);
